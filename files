@@ -1,0 +1,311 @@
+// app/api/gallery/route.ts
+import { NextResponse, type NextRequest } from "next/server"
+import { getServiceClient, isSupabaseConfigured } from "@/lib/supabase/server"
+
+export async function GET() {
+  try {
+    if (!isSupabaseConfigured()) {
+      // Demo dataset
+      return NextResponse.json([
+        {
+          id: "1",
+          title: "Demo 1",
+          description: "Item de demonstração",
+          category: "demo",
+          image_url: "/placeholder.svg?height=300&width=400&text=Demo+1",
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: "2",
+          title: "Demo 2",
+          description: "Item de demonstração",
+          category: "demo",
+          image_url: "/placeholder.svg?height=300&width=400&text=Demo+2",
+          created_at: new Date().toISOString(),
+        },
+      ])
+    }
+
+    const supabase = getServiceClient()!
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select("id, title, description, category, image_url, created_at")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("[GALLERY] Database error (GET):", error.message)
+      return NextResponse.json({ error: "Erro ao carregar galeria" }, { status: 500 })
+    }
+
+    return NextResponse.json(data ?? [])
+  } catch (err) {
+    console.error("[GALLERY] Unexpected error (GET):", err)
+    return NextResponse.json({ error: "Erro inesperado" }, { status: 500 })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ error: "Supabase não configurado" }, { status: 500 })
+    }
+    const supabase = getServiceClient()!
+
+    const contentType = req.headers.get("content-type") || ""
+
+    // Suporte a multipart/form-data (upload de arquivo) E JSON simples
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData()
+      const title = formData.get("title") as string
+      const description = (formData.get("description") as string) || ""
+      const category = formData.get("category") as string
+      const image = formData.get("image") as File | null
+
+      if (!title || !category) {
+        return NextResponse.json(
+          { error: "Título e categoria são obrigatórios" },
+          { status: 400 }
+        )
+      }
+
+      let imageUrl = `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(title)}`
+      if (image && image.size > 0) {
+        try {
+          const fileName = `${Date.now()}-${image.name}`
+          const { error: uploadError } = await supabase.storage
+            .from("images")
+            .upload(`gallery/${fileName}`, image)
+
+          if (uploadError) {
+            console.error("[GALLERY] Upload error:", uploadError.message)
+          } else {
+            const { data: urlData } = supabase.storage
+              .from("images")
+              .getPublicUrl(`gallery/${fileName}`)
+            imageUrl = urlData.publicUrl
+          }
+        } catch (uploadErr) {
+          console.error("[GALLERY] Upload exception:", uploadErr)
+        }
+      }
+
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .insert({ title, description, category, image_url: imageUrl })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("[GALLERY] Insert error (multipart):", error.message)
+        return NextResponse.json({ error: "Erro ao salvar imagem" }, { status: 500 })
+      }
+
+      return NextResponse.json(data, { status: 201 })
+    }
+
+    // JSON
+    const body = await req.json().catch(() => ({} as any))
+    const title: string | undefined = body.title
+    const description: string = body.description || ""
+    const category: string | undefined = body.category
+    // Suporta tanto image_url quanto url (retrocompatibilidade)
+    const imageUrl: string | undefined = body.image_url || body.url
+
+    if (!title || !category || !imageUrl) {
+      return NextResponse.json(
+        { error: "Campos obrigatórios: title, category e image_url" },
+        { status: 400 }
+      )
+    }
+
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .insert({ title, description, category, image_url: imageUrl })
+      .select()
+      .single()
+
+    if (error) {
+      console.error("[GALLERY] Insert error (json):", error.message)
+      return NextResponse.json({ error: "Erro ao salvar imagem" }, { status: 500 })
+    }
+
+    return NextResponse.json(data, { status: 201 })
+  } catch (err) {
+    console.error("[GALLERY] Unexpected error (POST):", err)
+    return NextResponse.json({ error: "Erro inesperado" }, { status: 500 })
+  }
+}
+
+// app/api/gallery/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server"
+import { getServiceClient, isSupabaseConfigured } from "@/lib/supabase/server"
+import { getAuthenticatedAdmin } from "@/lib/auth/auth-utils"
+
+export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json(
+        {
+          id: params.id,
+          title: "Demo",
+          description: "Imagem de demonstração",
+          category: "demo",
+          image_url: "/placeholder.svg?height=300&width=400&text=Demo",
+          created_at: new Date().toISOString(),
+        },
+        { status: 200 }
+      )
+    }
+
+    const supabase = getServiceClient()!
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select("id, title, description, category, image_url, created_at")
+      .eq("id", params.id)
+      .single()
+
+    if (error) {
+      console.error("[GALLERY] Fetch by id error:", error.message)
+      return NextResponse.json({ error: "Imagem não encontrada" }, { status: 404 })
+    }
+    return NextResponse.json(data)
+  } catch (err) {
+    console.error("[GALLERY] Unexpected error (GET by id):", err)
+    return NextResponse.json({ error: "Erro inesperado" }, { status: 500 })
+  }
+}
+
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const admin = await getAuthenticatedAdmin()
+    if (!admin) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
+
+    const contentType = request.headers.get("content-type") || ""
+    const supabase = isSupabaseConfigured() ? getServiceClient()! : null
+
+    if (!supabase) {
+      // Demo mode: echo update
+      const formData = contentType.includes("multipart/form-data") ? await request.formData() : null
+      const title = formData?.get("title") as string | undefined
+      const description = (formData?.get("description") as string) || ""
+      const category = formData?.get("category") as string | undefined
+      return NextResponse.json({
+        id: params.id,
+        title: title || "Demo",
+        description,
+        category: category || "demo",
+        image_url: `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(title || "Demo")}`,
+        updated_at: new Date().toISOString(),
+      })
+    }
+
+    const updateData: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData()
+      const title = formData.get("title") as string
+      const description = (formData.get("description") as string) || ""
+      const category = formData.get("category") as string
+      const image = formData.get("image") as File | null
+
+      if (!title || !category) {
+        return NextResponse.json(
+          { error: "Título e categoria são obrigatórios" },
+          { status: 400 }
+        )
+      }
+
+      updateData.title = title
+      updateData.description = description
+      updateData.category = category
+
+      if (image && image.size > 0) {
+        try {
+          const fileName = `${Date.now()}-${image.name}`
+          const { error: uploadError } = await supabase.storage
+            .from("images")
+            .upload(`gallery/${fileName}`, image)
+
+          if (uploadError) {
+            console.error("[GALLERY] Upload error (PUT):", uploadError.message)
+          } else {
+            const { data: urlData } = supabase.storage
+              .from("images")
+              .getPublicUrl(`gallery/${fileName}`)
+            updateData.image_url = urlData.publicUrl
+          }
+        } catch (uploadErr) {
+          console.error("[GALLERY] Upload exception (PUT):", uploadErr)
+        }
+      }
+    } else {
+      const body = await request.json().catch(() => ({} as any))
+      const { title, description = "", category, image_url, url } = body
+      if (!title || !category) {
+        return NextResponse.json(
+          { error: "Título e categoria são obrigatórios" },
+          { status: 400 }
+        )
+      }
+      updateData.title = title
+      updateData.description = description
+      updateData.category = category
+      if (image_url || url) updateData.image_url = image_url || url
+    }
+
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .update(updateData)
+      .eq("id", params.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("[GALLERY] Database error (PUT):", error.message)
+      return NextResponse.json({ error: "Erro ao atualizar imagem" }, { status: 500 })
+    }
+
+    return NextResponse.json(data)
+  } catch (err) {
+    console.error("[GALLERY] Unexpected error (PUT):", err)
+    return NextResponse.json({ error: "Erro inesperado" }, { status: 500 })
+  }
+}
+
+export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ success: true, message: "Imagem excluída (demo)" })
+    }
+    const supabase = getServiceClient()!
+
+    // opcional: remover do storage se estiver no bucket
+    const { data: imageData } = await supabase
+      .from("gallery_images")
+      .select("image_url")
+      .eq("id", params.id)
+      .single()
+
+    if (imageData?.image_url?.includes("/storage/v1/object/public/images/")) {
+      const parts = imageData.image_url.split("/images/")
+      const path = parts[1]
+      if (path) {
+        await supabase.storage.from("images").remove([path])
+      }
+    }
+
+    const { error } = await supabase.from("gallery_images").delete().eq("id", params.id)
+    if (error) {
+      console.error("[GALLERY] Delete error:", error.message)
+      return NextResponse.json({ error: "Erro ao excluir imagem" }, { status: 500 })
+    }
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error("[GALLERY] Unexpected error (DELETE):", err)
+    return NextResponse.json({ error: "Erro inesperado" }, { status: 500 })
+  }
+}
