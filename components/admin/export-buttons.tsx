@@ -23,7 +23,8 @@ interface ExportButtonsProps {
 
 export default function ExportButtons({ messages }: ExportButtonsProps) {
   const exportToCSV = () => {
-    if (messages.length === 0) {
+    const messagesArray = Array.isArray(messages) ? messages : []
+    if (messagesArray.length === 0) {
       toast.error("Não há mensagens para exportar")
       return
     }
@@ -44,7 +45,7 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       ]
 
       // Dados das mensagens organizados
-      const csvData = messages.map(msg => [
+      const csvData = messagesArray.map(msg => [
         msg.read ? "Lida" : "Nao Lida",
         msg.name,
         msg.email,
@@ -66,10 +67,10 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       // Adicionar linha de estatísticas
       const statsRow = [
         "ESTATÍSTICAS",
-        `Total: ${messages.length}`,
-        `Lidas: ${messages.filter(m => m.read).length}`,
-        `Não Lidas: ${messages.filter(m => !m.read).length}`,
-        `Taxa de Leitura: ${Math.round((messages.filter(m => m.read).length / messages.length) * 100)}%`,
+        `Total: ${messagesArray.length}`,
+        `Lidas: ${messagesArray.filter(m => m.read).length}`,
+        `Não Lidas: ${messagesArray.filter(m => !m.read).length}`,
+        `Taxa de Leitura: ${messagesArray.length > 0 ? Math.round((messagesArray.filter(m => m.read).length / messagesArray.length) * 100) : 0}%`,
         "",
         "",
         "",
@@ -101,7 +102,8 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
   }
 
   const exportToPDF = async () => {
-    if (messages.length === 0) {
+    const messagesArray = Array.isArray(messages) ? messages : []
+    if (messagesArray.length === 0) {
       toast.error("Não há mensagens para exportar")
       return
     }
@@ -158,9 +160,9 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       yPosition += lineHeight * 2
 
       // Estatísticas em cards visuais
-      const totalMessages = messages.length
-      const readMessages = messages.filter(m => m.read).length
-      const unreadMessages = messages.filter(m => !m.read).length
+      const totalMessages = messagesArray.length
+      const readMessages = messagesArray.filter(m => m.read).length
+      const unreadMessages = messagesArray.filter(m => !m.read).length
       const readRate = totalMessages > 0 ? Math.round((readMessages / totalMessages) * 100) : 0
 
       // Card de estatísticas
@@ -192,7 +194,7 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       doc.setFontSize(10)
       doc.setFont("helvetica", "normal")
 
-      messages.forEach((message, index) => {
+      messagesArray.forEach((message, index) => {
         // Verificar se precisa de nova página
         if (yPosition > pageHeight - 40) {
           doc.addPage()

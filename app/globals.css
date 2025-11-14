@@ -4,52 +4,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 351 72% 43%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 10 10% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 10 10% 4%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 351 72% 43%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
+    --ring: 45 100% 51%;
     --radius: 0.5rem;
 
-    /* Custom Super Beast colors */
-    --wine-dark: #341c20;
-    --red-vibrant: #bb1e39;
+    /* THE BOX Custom Colors */
+    --gold: #D4AF37;
+    --gold-dark: #B8941F;
+    --black: #000000;
+    --black-light: #0A0A0A;
+    --gray-light: #B3B3B3;
+    --gray-border: #1A1A1A;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 351 72% 43%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 10 10% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 10 10% 4%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 351 72% 43%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
+    --ring: 45 100% 51%;
   }
 }
 
@@ -72,27 +76,27 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #0A0A0A;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #D4AF37;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #B8941F;
 }
 
-/* Gradient utilities */
-.gradient-wine-red {
-  background: linear-gradient(135deg, #341c20 0%, #bb1e39 100%);
+/* THE BOX Gradient utilities */
+.gradient-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%);
 }
 
-.gradient-wine-red-hover {
-  background: linear-gradient(135deg, #2a161a 0%, #a01a33 100%);
+.gradient-gold-hover {
+  background: linear-gradient(135deg, #B8941F 0%, #9A7A16 100%);
 }
 
-.gradient-wine-red-light {
-  background: linear-gradient(135deg, rgba(52, 28, 32, 0.1) 0%, rgba(187, 30, 57, 0.1) 100%);
+.gradient-gold-light {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(184, 148, 31, 0.1) 100%);
 }

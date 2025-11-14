@@ -7,15 +7,23 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    domains: ['pjkquawlmwlndskktfgs.supabase.co'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'pjkquawlmwlndskktfgs.supabase.co',
+        hostname: '*.supabase.co',
+        port: '',
         pathname: '/storage/v1/object/public/**',
       },
     ],
   },
   // Configurações para melhorar tempo real
+  experimental: {
+    // Desabilitar cache estático para APIs
+    isrMemoryCacheSize: 0,
+    // Configurações para resolver problemas de hidratação
+    optimizePackageImports: ['@/components/ui'],
+  },
   // Headers globais para evitar cache
   async headers() {
     return [

@@ -30,28 +30,26 @@ export async function GET() {
     const timestamp = Date.now()
     console.log(`[STATS] Executando queries com timestamp: ${timestamp}`)
     
-    const [messages, plans, gallery, stats] = await Promise.all([
+    const [messages, modalities, gallery] = await Promise.all([
       supabase.from("contact_messages").select("id, read").order("created_at", { ascending: false }),
-      supabase.from("plans").select("id").eq("active", true),
-      supabase.from("gallery_images").select("id").order("created_at", { ascending: false }),
-      supabase.from("statistics").select("monthly_views").order("monthly_views", { ascending: false }).limit(1)
+      supabase.from("modalities").select("id").eq("active", true),
+      supabase.from("gallery_images").select("id").order("created_at", { ascending: false })
     ])
 
     console.log("[STATS] Resultados das queries:")
     console.log("- Messages:", messages)
-    console.log("- Plans (raw):", plans)
-    console.log("- Plans data:", plans.data)
-    console.log("- Plans count:", plans.data?.length)
+    console.log("- Modalities data:", modalities.data)
+    console.log("- Modalities count:", modalities.data?.length)
     console.log("- Gallery:", gallery)
-    console.log("- Stats:", stats)
+    console.log("- Gallery count:", gallery.data?.length)
 
     if (messages.error) {
       console.error("[STATS] Erro na query de mensagens:", messages.error)
       throw messages.error
     }
-    if (plans.error) {
-      console.error("[STATS] Erro na query de planos:", plans.error)
-      throw plans.error
+    if (modalities.error) {
+      console.error("[STATS] Erro na query de modalidades:", modalities.error)
+      throw modalities.error
     }
     if (gallery.error) {
       console.error("[STATS] Erro na query de galeria:", gallery.error)
@@ -60,26 +58,21 @@ export async function GET() {
 
     const totalMessages = messages.data?.length ?? 0
     const unreadMessages = messages.data?.filter((m: any) => !m.read).length ?? 0
-    const activePlans = plans.data?.length ?? 0
+    const activeModalities = modalities.data?.length ?? 0
     const galleryImages = gallery.data?.length ?? 0
-    const monthlyViews = stats.data?.[0]?.monthly_views ?? 0
 
     console.log("[STATS] Dados processados:")
     console.log("- totalMessages:", totalMessages)
     console.log("- unreadMessages:", unreadMessages)
-    console.log("- activePlans:", activePlans)
+    console.log("- activeModalities:", activeModalities)
     console.log("- galleryImages:", galleryImages)
-    console.log("- monthlyViews:", monthlyViews)
-    console.log("- messages.data:", messages.data)
-    console.log("- plans.data:", plans.data)
-    console.log("- gallery.data:", gallery.data)
 
     const result = {
       total_messages: totalMessages,
       unread_messages: unreadMessages,
-      active_plans: activePlans,
+      active_plans: activeModalities, // Mantido para compatibilidade
+      active_modalities: activeModalities,
       gallery_images: galleryImages,
-      monthly_views: monthlyViews,
       timestamp: new Date().toISOString(),
     }
 

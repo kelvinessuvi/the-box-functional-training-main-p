@@ -8,7 +8,7 @@ export default function Testimonials() {
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold sm:text-4xl mb-4">O Que Dizem os Nossos Clientes</h2>
         <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
-          Mais de 100 empresas já transformaram as suas equipas com o Super Beast. 
+          Mais de 20 empresas já transformaram as suas equipas com o Super Beast. 
           Descobre o que dizem sobre a nossa metodologia.
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function Testimonials() {
           <div className="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center mx-auto mb-3">
             <Star className="w-8 h-8 text-white" />
           </div>
-          <div className="text-2xl font-bold text-[#bb1e39]">100+</div>
+          <div className="text-2xl font-bold text-[#bb1e39]">20+</div>
           <div className="text-sm text-muted-foreground">Equipas Transformadas</div>
         </div>
 

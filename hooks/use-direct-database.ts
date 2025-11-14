@@ -35,32 +35,29 @@ export function useDirectDatabase() {
       }
 
       // Buscar dados diretamente das tabelas
-      const [messagesResult, plansResult, galleryResult, statsResult] = await Promise.all([
+      const [messagesResult, modalitiesResult, galleryResult] = await Promise.all([
         supabase.from('contact_messages').select('id, read'),
-        supabase.from('plans').select('id').eq('active', true),
-        supabase.from('gallery_images').select('id'),
-        supabase.from('statistics').select('monthly_views').order('monthly_views', { ascending: false }).limit(1)
+        supabase.from('modalities').select('id').eq('active', true),
+        supabase.from('gallery_images').select('id')
       ])
 
       // Verificar erros
       if (messagesResult.error) throw messagesResult.error
-      if (plansResult.error) throw plansResult.error
+      if (modalitiesResult.error) throw modalitiesResult.error
       if (galleryResult.error) throw galleryResult.error
-      if (statsResult.error) throw statsResult.error
 
       // Calcular estatísticas
       const totalMessages = messagesResult.data?.length || 0
       const unreadMessages = messagesResult.data?.filter(m => !m.read).length || 0
-      const activePlans = plansResult.data?.length || 0
+      const activeModalities = modalitiesResult.data?.length || 0
       const galleryImages = galleryResult.data?.length || 0
-      const monthlyViews = statsResult.data?.[0]?.monthly_views || 0
 
       const newStats: DatabaseStats = {
         totalMessages,
         unreadMessages,
-        activePlans,
+        activePlans: activeModalities, // Mantido para compatibilidade
         galleryImages,
-        monthlyViews,
+        monthlyViews: 0, // Removido, mas mantido no tipo para compatibilidade
       }
 
       console.log('[DIRECT-DB] Dados atualizados:', newStats)
@@ -96,15 +93,15 @@ export function useDirectDatabase() {
       })
       .subscribe()
 
-    // Assinatura para planos
-    const plansSubscription = supabase
-      .channel('direct-plans')
+    // Assinatura para modalidades
+    const modalitiesSubscription = supabase
+      .channel('direct-modalities')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
-        table: 'plans'
+        table: 'modalities'
       }, () => {
-        console.log('[DIRECT-DB] Mudança detectada em planos, atualizando...')
+        console.log('[DIRECT-DB] Mudança detectada em modalidades, atualizando...')
         fetchStatsFromDatabase()
       })
       .subscribe()
@@ -122,25 +119,11 @@ export function useDirectDatabase() {
       })
       .subscribe()
 
-    // Assinatura para estatísticas
-    const statsSubscription = supabase
-      .channel('direct-statistics')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'statistics'
-      }, () => {
-        console.log('[DIRECT-DB] Mudança detectada em estatísticas, atualizando...')
-        fetchStatsFromDatabase()
-      })
-      .subscribe()
-
     // Armazenar referências
     subscriptions.current = [
       messagesSubscription,
-      plansSubscription,
-      gallerySubscription,
-      statsSubscription
+      modalitiesSubscription,
+      gallerySubscription
     ]
 
     console.log('[DIRECT-DB] Assinaturas configuradas com sucesso')

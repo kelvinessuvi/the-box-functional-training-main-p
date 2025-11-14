@@ -1,3 +1,8 @@
+-- =====================================================
+-- THE BOX Functional Training - Configurações do Site
+-- Execute este script no SQL Editor do Supabase
+-- =====================================================
+
 -- Criar tabela de configurações do site
 CREATE TABLE IF NOT EXISTS site_settings (
   id INTEGER PRIMARY KEY DEFAULT 1,
@@ -11,17 +16,17 @@ CREATE TABLE IF NOT EXISTS site_settings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Inserir configurações padrão
+-- Inserir configurações padrão da THE BOX
 INSERT INTO site_settings (
   id, email, phone, location, working_hours, company_name, description
 ) VALUES (
   1,
-  'info@fitem14semanas.com',
-  '+244 XXX XXX XXX',
-  'Luanda, Angola',
-  'Seg-Sex: 08:00-18:00',
-  'Super Beast - Fit Em 14 Semanas',
-  'Transformamos equipas através do fitness, entretenimento e desenvolvimento pessoal em Angola.'
+  'geral@theboxacademy.com',
+  '+244 923 525 886',
+  'Luanda e Lisboa',
+  'Seg-Sex: 08:00-21:00',
+  'THE BOX Functional Training',
+  'Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal.'
 ) ON CONFLICT (id) DO NOTHING;
 
 -- Criar política RLS (Row Level Security)

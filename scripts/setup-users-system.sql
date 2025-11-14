@@ -1,5 +1,7 @@
--- Script para configurar o sistema de usuários com super admin
--- Execute este script no seu banco de dados Supabase
+-- =====================================================
+-- THE BOX Functional Training - Sistema de Usuários
+-- Execute este script no SQL Editor do Supabase
+-- =====================================================
 
 -- 1. Criar tabela de usuários
 CREATE TABLE IF NOT EXISTS users (
@@ -35,16 +37,8 @@ CREATE TRIGGER update_users_updated_at
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
--- 5. Inserir usuário super admin padrão
--- IMPORTANTE: Esta senha é apenas para desenvolvimento
--- Em produção, use uma senha forte e real
-INSERT INTO users (email, password_hash, role, is_active) 
-VALUES (
-    'admin@superbeast.com', 
-    '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8KqKqKq', -- admin123
-    'super_admin', 
-    true
-) ON CONFLICT (email) DO NOTHING;
+-- 5. NOTA: O usuário administrador será criado pelo script create-admin-user-direct.sql
+-- Execute esse script após executar este para criar o usuário admin inicial
 
 -- 6. Habilitar RLS (Row Level Security)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

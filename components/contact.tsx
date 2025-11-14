@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle } from "lucide-react"
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle, MessageCircle } from "lucide-react"
 
 interface ContactSettings {
   email: string
@@ -24,22 +24,19 @@ export function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    company: "",
     phone: "",
-    participants: "",
     subject: "",
     message: "",
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formStatus, setFormStatus] = useState<{
     type: "success" | "error" | null
     message: string | null
   }>({ type: null, message: null })
   const [contactInfo, setContactInfo] = useState<ContactSettings>({
-    email: "info@fitem14semanas.com",
-    phone: "+244 XXX XXX XXX",
-    location: "Luanda, Angola",
-    workingHours: "Seg-Sex: 08:00-18:00",
+    email: "geral@theboxacademy.com",
+    phone: "+244 923 525 886",
+    location: "Luanda e Lisboa",
+    workingHours: "Seg-Sex: 08:00-21:00",
   })
   const [isLoadingSettings, setIsLoadingSettings] = useState(true)
 
@@ -56,10 +53,10 @@ export function Contact() {
         if (response.ok) {
           const data = await response.json()
           setContactInfo({
-            email: data.email || "info@fitem14semanas.com",
-            phone: data.phone || "+244 XXX XXX XXX",
-            location: data.location || "Luanda, Angola",
-            workingHours: data.workingHours || "Seg-Sex: 08:00-18:00",
+            email: data.email || "geral@theboxacademy.com",
+            phone: data.phone || "+244 923 525 886",
+            location: data.location || "Luanda e Lisboa",
+            workingHours: data.workingHours || "Seg-Sex: 08:00-21:00",
             companyName: data.companyName,
             description: data.description,
           })
@@ -76,47 +73,51 @@ export function Contact() {
     loadSettings()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    setFormStatus({ type: null, message: null })
+    
+    // Número do WhatsApp da THE BOX
+    const whatsappNumber = "244923525886"
+    
+    // Formatar mensagem
+    const message = `*Mensagem da THE BOX Website*
 
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
+*Nome:* ${formData.name}
+*Email:* ${formData.email}
+${formData.phone ? `*Telefone:* ${formData.phone}` : ''}
+*Assunto:* ${formData.subject}
 
-      const data = await response.json()
+*Mensagem:*
+${formData.message}`
 
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao enviar mensagem")
-      }
-
+    // Codificar mensagem para URL
+    const encodedMessage = encodeURIComponent(message)
+    
+    // Criar link do WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
+    
+    // Abrir WhatsApp em nova aba
+    window.open(whatsappUrl, '_blank')
+    
+    // Mostrar mensagem de sucesso
       setFormStatus({
         type: "success",
-        message: "Mensagem enviada com sucesso! Entraremos em contacto em breve.",
+      message: "Redirecionando para o WhatsApp... A mensagem será enviada diretamente!",
       })
+    
+    // Limpar formulário
       setFormData({
         name: "",
         email: "",
-        company: "",
         phone: "",
-        participants: "",
         subject: "",
         message: "",
       })
-    } catch (error: any) {
-      setFormStatus({
-        type: "error",
-        message: error.message || "Ocorreu um erro ao enviar a mensagem. Por favor, tente novamente.",
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
+    
+    // Limpar mensagem de sucesso após 3 segundos
+    setTimeout(() => {
+      setFormStatus({ type: null, message: null })
+    }, 3000)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -127,16 +128,30 @@ export function Contact() {
   }
 
   // Construir array de informações de contato a partir das settings carregadas
+  const whatsappNumber = "244923525886"
+  const whatsappUrl = `https://wa.me/${whatsappNumber}`
+
   const contactInfoArray = [
+    {
+      icon: MessageCircle,
+      title: "WhatsApp",
+      content: "+244 923 525 886",
+      link: whatsappUrl,
+      isLink: true,
+    },
     {
       icon: Mail,
       title: "Email",
       content: contactInfo.email,
+      link: `mailto:${contactInfo.email}`,
+      isLink: true,
     },
     {
       icon: Phone,
       title: "Telefone",
       content: contactInfo.phone,
+      link: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
+      isLink: true,
     },
     {
       icon: MapPin,
@@ -151,42 +166,50 @@ export function Contact() {
   ]
 
   return (
-    <section id="contact" className="py-20 bg-gray-50">
+    <section id="contact" className="py-12 bg-black sm:py-16 md:py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold sm:text-4xl mb-4 text-white">
+              Entre em <span className="text-[#D4AF37]">Contacto</span>
+            </h2>
+            <p className="text-[#B3B3B3] max-w-2xl mx-auto">
+              Tem alguma dúvida ou quer saber mais sobre a THE BOX? Entre em contacto connosco!
+            </p>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
             {/* Contact Form */}
             <div>
-              <Card className="shadow-lg">
+              <Card className="shadow-lg bg-[#0A0A0A] border-[#1A1A1A]">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900">Solicitar Orçamento</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-white">Enviar Mensagem</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {formStatus.type && (
                     <div
                       className={`mb-6 p-4 rounded-lg ${
                         formStatus.type === "success"
-                          ? "bg-green-50 border border-green-200"
-                          : "bg-red-50 border border-red-200"
+                          ? "bg-[#1A1A1A] border border-[#D4AF37]"
+                          : "bg-[#1A1A1A] border border-red-500"
                       }`}
                     >
                       <div className="flex items-start">
                         {formStatus.type === "success" ? (
-                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <CheckCircle className="h-5 w-5 text-[#D4AF37] mt-0.5 mr-2 flex-shrink-0" />
                         ) : (
                           <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
                         )}
-                        <p className={`text-sm ${formStatus.type === "success" ? "text-green-700" : "text-red-700"}`}>
+                        <p className={`text-sm ${formStatus.type === "success" ? "text-[#D4AF37]" : "text-red-500"}`}>
                           {formStatus.message}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-4">
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Nome Completo *</Label>
+                        <Label htmlFor="name" className="text-white">Nome Completo *</Label>
                         <Input
                           id="name"
                           name="name"
@@ -194,10 +217,11 @@ export function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="Seu nome"
+                          className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
+                        <Label htmlFor="email" className="text-white">Email *</Label>
                         <Input
                           id="email"
                           name="email"
@@ -206,53 +230,25 @@ export function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="seu@email.com"
+                          className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                         />
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="company">Empresa</Label>
-                        <Input
-                          id="company"
-                          name="company"
-                          value={formData.company}
-                          onChange={handleChange}
-                          placeholder="Nome da empresa"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Telefone</Label>
+                      <Label htmlFor="phone" className="text-white">Telefone</Label>
                         <Input
                           id="phone"
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="+244 XXX XXX XXX"
+                        className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                         />
-                      </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="participants">Número de Participantes</Label>
-                      <Select
-                        value={formData.participants}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, participants: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="10-20">10-20 pessoas</SelectItem>
-                          <SelectItem value="20-30">20-30 pessoas</SelectItem>
-                          <SelectItem value="30-50">30-50 pessoas</SelectItem>
-                          <SelectItem value="50+">50+ pessoas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Assunto *</Label>
+                      <Label htmlFor="subject" className="text-white">Assunto *</Label>
                       <Input
                         id="subject"
                         name="subject"
@@ -260,11 +256,12 @@ export function Contact() {
                         onChange={handleChange}
                         required
                         placeholder="Assunto da mensagem"
+                        className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message">Mensagem *</Label>
+                      <Label htmlFor="message" className="text-white">Mensagem *</Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -273,16 +270,16 @@ export function Contact() {
                         required
                         rows={4}
                         placeholder="Conte-nos mais sobre as suas necessidades..."
+                        className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                       />
                     </div>
 
                     <Button
                       type="submit"
-                      className="w-full gradient-wine-red hover:gradient-wine-red-hover text-white"
-                      disabled={isSubmitting}
+                      className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
                     >
                       <Send className="h-4 w-4 mr-2" />
-                      {isSubmitting ? "Enviando..." : "Enviar Mensagem"}
+                      Enviar para WhatsApp
                     </Button>
                   </form>
                 </CardContent>
@@ -290,22 +287,41 @@ export function Contact() {
             </div>
 
             {/* Contact Information */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {isLoadingSettings ? (
-                <div className="text-center py-8 text-gray-500">Carregando informações de contato...</div>
+                <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-[#B3B3B3]">Carregando informações de contato...</div>
               ) : (
                 contactInfoArray.map((info, index) => (
-                <Card key={index}>
+                  <Card key={index} className={`bg-[#0A0A0A] border-[#1A1A1A] ${info.isLink ? 'hover:border-[#D4AF37] cursor-pointer transition-all' : ''}`}>
                   <CardContent className="p-6">
+                      {info.isLink ? (
+                        <a 
+                          href={info.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-[#D4AF37] rounded-lg flex items-center justify-center">
+                              <info.icon className="h-6 w-6 text-black" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-white">{info.title}</h3>
+                              <p className="text-[#D4AF37] hover:underline">{info.content}</p>
+                            </div>
+                          </div>
+                        </a>
+                      ) : (
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 gradient-wine-red rounded-lg flex items-center justify-center">
-                        <info.icon className="h-6 w-6 text-white" />
+                          <div className="w-12 h-12 bg-[#D4AF37] rounded-lg flex items-center justify-center">
+                            <info.icon className="h-6 w-6 text-black" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{info.title}</h3>
-                        <p className="text-gray-600">{info.content}</p>
+                            <h3 className="font-semibold text-white">{info.title}</h3>
+                            <p className="text-[#B3B3B3]">{info.content}</p>
                       </div>
                     </div>
+                      )}
                   </CardContent>
                 </Card>
               ))

@@ -31,12 +31,28 @@ export async function POST(req: Request) {
     if (userError) {
       console.error("[AUTH] Erro ao buscar usuário:", userError.message)
       console.error("[AUTH] Código:", userError.code)
-      return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 })
+      console.error("[AUTH] Detalhes:", JSON.stringify(userError, null, 2))
+      
+      // Mensagens de erro mais específicas
+      if (userError.code === 'PGRST116') {
+        return NextResponse.json({ 
+          error: "Usuário não encontrado. Verifique se executou o script SQL create-admin-user-direct.sql no Supabase.",
+          details: "O usuário admin ainda não foi criado no banco de dados."
+        }, { status: 401 })
+      }
+      
+      return NextResponse.json({ 
+        error: "Erro ao buscar usuário no banco de dados",
+        details: userError.message 
+      }, { status: 401 })
     }
 
     if (!user) {
       console.log("[AUTH] Usuário não encontrado:", email)
-      return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 })
+      return NextResponse.json({ 
+        error: "Usuário não encontrado. Execute o script SQL create-admin-user-direct.sql no Supabase.",
+        details: "O email fornecido não existe no banco de dados."
+      }, { status: 401 })
     }
 
     console.log("[AUTH] Usuário encontrado:", user.email, "Role:", user.role, "Ativo:", user.is_active)
@@ -48,10 +64,18 @@ export async function POST(req: Request) {
     }
 
     // Verificar senha
+    console.log("[AUTH] Verificando senha...")
+    console.log("[AUTH] Hash no banco:", user.password_hash.substring(0, 20) + "...")
     const isPasswordValid = await verifyPassword(password, user.password_hash)
+    console.log("[AUTH] Senha válida?", isPasswordValid)
+    
     if (!isPasswordValid) {
       console.log("[AUTH] Senha inválida para:", email)
-      return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 })
+      console.log("[AUTH] Senha fornecida:", password)
+      return NextResponse.json({ 
+        error: "Senha incorreta",
+        details: "A senha fornecida não corresponde ao hash armazenado no banco de dados. Verifique se executou o script SQL corretamente."
+      }, { status: 401 })
     }
 
     // Atualizar último login

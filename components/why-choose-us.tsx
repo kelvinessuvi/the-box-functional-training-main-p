@@ -44,7 +44,7 @@ export function WhyChooseUs() {
                 </p>
                 <p className="text-gray-600">
                   Fundada por <strong>Ricardo Buta</strong> e <strong>Mauro Sérgio</strong>, a empresa conta com mais de
-                  10 anos de experiência, 4+ coaches especializados e já transformou mais de 100 clientes.
+                  10 anos de experiência, 4+ coaches especializados e já atendeu mais de 20 empresas.
                 </p>
                 <p className="text-gray-600">
                   Nossa missão é revolucionar o desenvolvimento de equipas em Angola através de metodologias inovadoras

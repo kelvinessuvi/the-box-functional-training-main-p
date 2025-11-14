@@ -48,17 +48,17 @@ export function Packages() {
   if (!plans.length) return null
 
   return (
-    <section id="programs" className="py-20 bg-gray-50">
+    <section id="programs" className="py-12 bg-gray-50 sm:py-16 md:py-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Nossos Programas</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3 sm:text-3xl sm:mb-4 md:text-4xl">Nossos Programas</h2>
+          <p className="text-base text-gray-600 max-w-3xl mx-auto sm:text-lg">
             Escolha o pacote ideal para a tua equipa. Cada programa é cuidadosamente 
             desenhado para maximizar o impacto e criar experiências transformadoras.
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
           {plans.map((plan, index) => (
             <Card key={plan.id} className={`relative overflow-hidden transition-transform hover:scale-105 ${
               index === 1 ? 'ring-2 ring-red-500 ring-opacity-50' : ''

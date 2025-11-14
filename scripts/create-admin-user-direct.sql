@@ -1,14 +1,28 @@
--- Script SQL para criar usuário administrador diretamente no Supabase
+-- =====================================================
+-- THE BOX Functional Training - Criar Usuário Admin
 -- Execute este script no SQL Editor do Supabase
+-- =====================================================
+-- IMPORTANTE: Este script cria o usuário administrador
+-- Email: geral@theboxft.com
+-- Senha: @The-Box-2025
+-- 
+-- Para gerar o hash da senha, use um script Node.js ou online:
+-- const bcrypt = require('bcryptjs');
+-- const hash = await bcrypt.hash('@The-Box-2025', 12);
+-- =====================================================
 
--- Gerar hash da senha "admin123" com bcrypt (salt rounds 12)
--- Este hash foi gerado previamente usando bcryptjs
-
--- Verificar se a tabela users existe
+-- Verificar se a tabela users existe e tem a coluna password_hash
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users') THEN
-        RAISE EXCEPTION 'Tabela users não existe! Execute primeiro scripts/setup-users-system.sql';
+        RAISE EXCEPTION 'Tabela users não existe! Execute primeiro scripts/setup-users-system.sql ou scripts/01-create-tables.sql';
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name = 'password_hash'
+    ) THEN
+        RAISE EXCEPTION 'Coluna password_hash não existe na tabela users! Execute primeiro scripts/setup-users-system.sql ou scripts/01-create-tables.sql';
     END IF;
 END $$;
 
@@ -16,19 +30,23 @@ END $$;
 DO $$
 DECLARE
     user_exists BOOLEAN;
+    pwd_hash TEXT;
 BEGIN
-    SELECT EXISTS(SELECT 1 FROM users WHERE email = 'admin@superbeast.com') INTO user_exists;
+    -- Hash da senha '@The-Box-2025' gerado com bcrypt (salt rounds 12)
+    pwd_hash := '$2b$12$pDnMgeLVB9kOmuUrZclU8OBu100bvJh7i0PNtAa3KGBjQtihD02ke';
+    
+    SELECT EXISTS(SELECT 1 FROM users WHERE email = 'geral@theboxft.com') INTO user_exists;
     
     IF user_exists THEN
-        RAISE NOTICE 'Usuário admin@superbeast.com já existe. Atualizando senha...';
+        RAISE NOTICE 'Usuário geral@theboxft.com já existe. Atualizando senha...';
         
         -- Atualizar senha existente
         UPDATE users 
-        SET password_hash = '$2b$12$a3kNBmTpm7el5pDaZGqJtuamprx.V.uloxz9RtNRxau.IAcu17N8y',
+        SET password_hash = pwd_hash,
             role = 'super_admin',
             is_active = true,
             updated_at = NOW()
-        WHERE email = 'admin@superbeast.com';
+        WHERE email = 'geral@theboxft.com';
         
         RAISE NOTICE 'Senha atualizada com sucesso!';
     ELSE
@@ -37,8 +55,8 @@ BEGIN
         -- Inserir novo usuário
         INSERT INTO users (email, password_hash, role, is_active) 
         VALUES (
-            'admin@superbeast.com', 
-            '$2b$12$a3kNBmTpm7el5pDaZGqJtuamprx.V.uloxz9RtNRxau.IAcu17N8y', -- admin123
+            'geral@theboxft.com', 
+            pwd_hash, -- '@The-Box-2025'
             'super_admin', 
             true
         );
@@ -55,5 +73,5 @@ SELECT
     is_active,
     created_at
 FROM users 
-WHERE email = 'admin@superbeast.com';
+WHERE email = 'geral@theboxft.com';
 

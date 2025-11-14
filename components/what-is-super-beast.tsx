@@ -1,67 +1,67 @@
-import { Users, Target, Heart, TrendingUp } from "lucide-react"
+import { Users, Shield, Heart, Award } from "lucide-react"
 
 export default function WhatIsSuperBeast() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:py-20">
+    <section id="about" className="mx-auto max-w-7xl px-4 py-16 sm:py-20 bg-black">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold sm:text-4xl mb-4">
-          O Que É o <span className="text-[#bb1e39]">Super Beast</span>
+        <h2 className="text-3xl font-bold sm:text-4xl mb-4 text-white">
+          Nossa <span className="text-[#D4AF37]">Filosofia</span>
         </h2>
-        <div className="max-w-4xl mx-auto space-y-4 text-muted-foreground">
+        <div className="max-w-4xl mx-auto space-y-4 text-[#B3B3B3]">
           <p className="text-lg">
-            Uma experiência corporativa inovadora que transforma equipas através do fitness, 
-            entretenimento e desenvolvimento pessoal.
+            A THE BOX é uma academia de Artes Marciais fundada em 2021, associada à GF Team Angola, 
+            criada para elevar a qualidade de treino e profissionalização de atletas.
           </p>
           <p className="text-lg">
-            Desperta o teu Monstro Interior e fortalece a tua organização com metodologias únicas 
-            e resultados comprovados.
+            <strong className="text-[#D4AF37] uppercase">"Aqui o Sistema é Bruto"</strong> - Desperta o teu 
+            potencial interior e fortalece a tua mente e corpo através de metodologias únicas e resultados comprovados.
           </p>
         </div>
-        <h3 className="text-xl font-semibold mt-8 mb-8 text-[#bb1e39]">Metodologia Única</h3>
+        <h3 className="text-xl font-semibold mt-8 mb-8 text-[#D4AF37] uppercase">Nossos Valores</h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* União de Equipas */}
-        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 text-center hover:shadow-xl transition-shadow">
-          <div className="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-white" />
+        {/* Irmandade */}
+        <div className="bg-[#0A0A0A] rounded-lg p-6 border border-[#1A1A1A] text-center hover:border-[#D4AF37] transition-all">
+          <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-black" />
           </div>
-          <h3 className="text-lg font-bold mb-2">União de Equipas</h3>
-          <p className="text-sm text-muted-foreground">
-            Fortalece laços entre colaboradores e cria espírito de equipa através de desafios colaborativos.
+          <h3 className="text-lg font-bold mb-2 text-white">Irmandade</h3>
+          <p className="text-sm text-[#B3B3B3]">
+            Todos fazem parte da vitória e da derrota da equipa. Criamos laços que vão além do tatami.
           </p>
         </div>
 
-        {/* Superar Desafios */}
-        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 text-center hover:shadow-xl transition-shadow">
-          <div className="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center mx-auto mb-4">
-            <Target className="w-8 h-8 text-white" />
+        {/* Integridade */}
+        <div className="bg-[#0A0A0A] rounded-lg p-6 border border-[#1A1A1A] text-center hover:border-[#D4AF37] transition-all">
+          <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-black" />
           </div>
-          <h3 className="text-lg font-bold mb-2">Superar Desafios</h3>
-          <p className="text-sm text-muted-foreground">
-            Desenvolve resiliência e capacidade de superar obstáculos em equipa.
-          </p>
-        </div>
-
-        {/* Saúde Integral */}
-        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 text-center hover:shadow-xl transition-shadow">
-          <div className="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-white" />
-          </div>
-          <h3 className="text-lg font-bold mb-2">Saúde Integral</h3>
-          <p className="text-sm text-muted-foreground">
-            Promove bem-estar físico e mental através de exercícios funcionais e mindfulness.
+          <h3 className="text-lg font-bold mb-2 text-white">Integridade</h3>
+          <p className="text-sm text-[#B3B3B3]">
+            Respeito, disciplina e espírito de equipa são fundamentais. Kimonos limpos, conduta exemplar.
           </p>
         </div>
 
         {/* Desenvolvimento */}
-        <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-100 text-center hover:shadow-xl transition-shadow">
-          <div className="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center mx-auto mb-4">
-            <TrendingUp className="w-8 h-8 text-white" />
+        <div className="bg-[#0A0A0A] rounded-lg p-6 border border-[#1A1A1A] text-center hover:border-[#D4AF37] transition-all">
+          <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center mx-auto mb-4">
+            <Award className="w-8 h-8 text-black" />
           </div>
-          <h3 className="text-lg font-bold mb-2">Desenvolvimento</h3>
-          <p className="text-sm text-muted-foreground">
-            Potencializa habilidades de liderança e comunicação em equipa.
+          <h3 className="text-lg font-bold mb-2 text-white">Desenvolvimento</h3>
+          <p className="text-sm text-[#B3B3B3]">
+            Formação contínua de atletas e cidadãos de valor. Instrutores com papel vital no crescimento.
+          </p>
+        </div>
+
+        {/* Partilha */}
+        <div className="bg-[#0A0A0A] rounded-lg p-6 border border-[#1A1A1A] text-center hover:border-[#D4AF37] transition-all">
+          <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center mx-auto mb-4">
+            <Heart className="w-8 h-8 text-black" />
+          </div>
+          <h3 className="text-lg font-bold mb-2 text-white">Partilha</h3>
+          <p className="text-sm text-[#B3B3B3]">
+            Jiu-Jitsu para todos - crianças, mulheres, masters. Política de portas abertas e limpeza espiritual (Soji).
           </p>
         </div>
       </div>

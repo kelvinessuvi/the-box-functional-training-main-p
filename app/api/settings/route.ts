@@ -4,12 +4,12 @@ import { getServiceClient, isSupabaseConfigured } from "@/lib/supabase/server"
 
 // Configurações padrão
 const defaultSettings = {
-  email: "info@fitem14semanas.com",
-  phone: "+244 XXX XXX XXX",
-  location: "Luanda, Angola",
-  workingHours: "Seg-Sex: 08:00-18:00",
-  companyName: "Super Beast - Fit Em 14 Semanas",
-  description: "Transformamos equipas através do fitness, entretenimento e desenvolvimento pessoal em Angola."
+  email: "geral@theboxacademy.com",
+  phone: "+244 923 525 886",
+  location: "Luanda e Lisboa",
+  workingHours: "Seg-Sex: 08:00-21:00",
+  companyName: "THE BOX Functional Training",
+  description: "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal."
 }
 
 export async function GET() {

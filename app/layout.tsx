@@ -10,10 +10,10 @@ import { Toaster } from "sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Super Beast Team Building - Transforme sua Equipe",
+  title: "THE BOX Functional Training - Aqui o Sistema é Bruto",
   description:
-    "Experiências únicas de Team Building que fortalecem laços, desenvolvem liderança e impulsionam resultados. Transforme sua equipe em uma Super Beast.",
-  keywords: "team building, liderança, desenvolvimento organizacional, workshops corporativos, coaching de equipe",
+    "Academia de Artes Marciais com foco em Jiu-Jitsu. Transformamos vidas através do treino, disciplina e desenvolvimento pessoal em Angola e Portugal.",
+  keywords: "jiu-jitsu, artes marciais, the box, functional training, angola, portugal, gf team, treino, disciplina",
     generator: 'v0.dev'
 }
 
@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <DatabaseSetupBanner />
         <Header />
-        <main className="pt-16">{children}</main>
+        <main>{children}</main>
         <Footer />
         <Toaster position="top-right" richColors />
       </body>

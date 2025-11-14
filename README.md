@@ -1,30 +1,102 @@
-# Fork of Criar projeto
+# Super Beast - Fit Em 14 Semanas
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Website oficial da Super Beast, plataforma de team building através de fitness, entretenimento e desenvolvimento pessoal em Angola.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/vetotestes-projects/v0-fork-of-criar-projeto)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/J8y02F9xUwD)
+## 🚀 Tecnologias
 
-## Overview
+- **Next.js 14** - Framework React
+- **TypeScript** - Tipagem estática
+- **Supabase** - Backend como serviço (PostgreSQL, Auth, Storage)
+- **Tailwind CSS** - Estilização
+- **shadcn/ui** - Componentes UI
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## 📋 Pré-requisitos
 
-## Deployment
+- Node.js 18+ 
+- npm ou yarn
+- Conta no Supabase
+- Git
 
-Your project is live at:
+## 🛠️ Instalação
 
-**[https://vercel.com/vetotestes-projects/v0-fork-of-criar-projeto](https://vercel.com/vetotestes-projects/v0-fork-of-criar-projeto)**
+1. **Clone o repositório:**
+```bash
+git clone https://github.com/SuperKilson/Super-Beast-Website-final.git
+cd Super-Beast-Website-final
+```
 
-## Build your app
+2. **Instale as dependências:**
+```bash
+npm install
+```
 
-Continue building your app on:
+3. **Configure as variáveis de ambiente:**
+```bash
+cp .env.example .env.local
+```
 
-**[https://v0.dev/chat/projects/J8y02F9xUwD](https://v0.dev/chat/projects/J8y02F9xUwD)**
+4. **Edite o `.env.local` com suas credenciais:**
+- Chaves do Supabase
+- Email e senha do admin
+- JWT_SECRET
 
-## How It Works
+5. **Execute o projeto:**
+```bash
+npm run dev
+```
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+O projeto estará disponível em: `http://localhost:3000`
+
+## 🌐 Deploy e Hospedagem
+
+📖 **Guia completo de deploy:** Veja [DEPLOY.md](./DEPLOY.md)
+
+**Resumo rápido:**
+
+1. Escolha uma plataforma (Vercel recomendado)
+2. Conecte seu repositório GitHub
+3. Configure as variáveis de ambiente
+4. Deploy automático!
+
+## ⚙️ Configuração do Banco de Dados
+
+Antes de usar o projeto, execute os scripts SQL no Supabase:
+
+1. Crie as tabelas necessárias
+2. Execute `scripts/create-admin-user-direct.sql` para criar usuário admin
+3. Configure as políticas RLS
+4. Execute `scripts/fix-all-triggers.sql` se necessário
+
+## 📁 Estrutura do Projeto
+
+```
+├── app/              # Rotas e páginas (App Router)
+├── components/       # Componentes React
+├── lib/              # Bibliotecas e utilitários
+├── scripts/          # Scripts SQL e utilitários
+├── public/           # Assets estáticos
+└── .env.local        # Variáveis de ambiente (não commitado)
+```
+
+## 🔐 Acesso Admin
+
+- **URL:** `/admin`
+- **Credenciais:** Configuradas no `.env.local` (ADMIN_EMAIL, ADMIN_PASSWORD)
+
+## 📝 Variáveis de Ambiente
+
+Consulte `.env.example` para ver todas as variáveis necessárias.
+
+**Importante:** O arquivo `.env.local` não é commitado por segurança.
+
+## 🐛 Troubleshooting
+
+Consulte [DEPLOY.md](./DEPLOY.md) para soluções de problemas comuns.
+
+## 📄 Licença
+
+Este projeto é privado e proprietário da Super Beast.
+
+---
+
+**Desenvolvido com ❤️ em Angola**

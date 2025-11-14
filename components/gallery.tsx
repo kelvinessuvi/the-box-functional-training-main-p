@@ -11,17 +11,16 @@ export function Gallery() {
 
   const categories = [
     { id: "Todas", name: "Todas" },
-    { id: "treino", name: "Treino" },
-    { id: "desafios", name: "Desafios" },
-    { id: "equipas", name: "Equipas" },
-    { id: "confraternizacao", name: "Confraternização" },
+    { id: "instrutores", name: "Instrutores" },
+    { id: "aulas", name: "Aulas" },
+    { id: "eventos", name: "Eventos" },
   ]
 
   // Função para filtrar URLs externas problemáticas
   const filterImageUrl = (url: string) => {
-    if (!url) return "/placeholder.svg?height=300&width=300&text=Super+Beast"
+    if (!url) return "/placeholder.svg?height=300&width=300&text=THE+BOX"
     if (url.includes("images.unsplash.com") || url.includes("unsplash.com")) {
-      return "/placeholder.svg?height=300&width=300&text=Super+Beast"
+      return "/placeholder.svg?height=300&width=300&text=THE+BOX"
     }
     // Verificar se é uma URL externa que não seja do próprio domínio
     if (url.startsWith("http") && !url.includes(window.location.hostname)) {
@@ -30,7 +29,7 @@ export function Gallery() {
         return url
       }
       // Para outras URLs externas, usar placeholder
-      return "/placeholder.svg?height=300&width=300&text=Super+Beast"
+      return "/placeholder.svg?height=300&width=300&text=THE+BOX"
     }
     return url
   }
@@ -74,28 +73,28 @@ export function Gallery() {
   }, [selectedCategory])
 
   return (
-    <section id="gallery" className="py-20 bg-white">
+    <section id="gallery" className="py-16 sm:py-20 md:py-24 bg-black">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-            <span className="bg-gradient-to-r from-[#341c20] to-[#bb1e39] bg-clip-text text-transparent">Galeria</span>{" "}
-            de Momentos
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4 text-white">
+            <span className="text-[#D4AF37]">Galeria</span> de Momentos
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Veja alguns dos momentos mais marcantes dos nossos eventos Super Beast. Cada imagem conta uma história de
-            superação, união e transformação.
+          <p className="text-[#B3B3B3] max-w-3xl mx-auto text-lg">
+            Veja alguns dos momentos mais marcantes da THE BOX. Instrutores, aulas e eventos especiais que contam a nossa história.
           </p>
         </div>
 
         {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mb-8 sm:mb-10 md:mb-12">
           {categories.map((category) => (
             <Button
               key={category.id}
               variant={selectedCategory === category.id ? "default" : "outline"}
               onClick={() => setSelectedCategory(category.id)}
               className={
-                selectedCategory === category.id ? "gradient-wine-red hover:gradient-wine-red-hover text-white" : ""
+                selectedCategory === category.id 
+                  ? "bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold" 
+                  : "border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]"
               }
             >
               {category.name}
@@ -105,29 +104,29 @@ export function Gallery() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 max-w-2xl mx-auto">
-            <p className="text-yellow-800 text-center">
-              <strong>Aviso:</strong> Não foi possível carregar as imagens do servidor. Mostrando conteúdo de exemplo.
+          <div className="bg-[#1A1A1A] border border-[#D4AF37] rounded-lg p-4 mb-8 max-w-2xl mx-auto">
+            <p className="text-[#D4AF37] text-center">
+              <strong>Aviso:</strong> Não foi possível carregar as imagens do servidor.
             </p>
           </div>
         )}
 
         {/* Gallery Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-7xl mx-auto">
           {isLoading ? (
-            <div className="col-span-4 text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p>Carregando imagens...</p>
+            <div className="col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 text-center py-8 sm:py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
+              <p className="text-[#B3B3B3]">Carregando imagens...</p>
             </div>
           ) : galleryItems.length === 0 ? (
-            <div className="col-span-4 text-center py-12">
-              <p className="text-gray-600">Nenhuma imagem encontrada para esta categoria.</p>
+            <div className="col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 text-center py-8 sm:py-12">
+              <p className="text-sm text-[#B3B3B3] sm:text-base">Nenhuma imagem encontrada para esta categoria.</p>
             </div>
           ) : (
             galleryItems.map((item) => (
               <div key={item.id} className="group cursor-pointer">
-                <div className="bg-gray-200 rounded-lg overflow-hidden aspect-square flex items-center justify-center hover:bg-gray-300 transition-colors">
-                  {item.image_url && item.image_url !== "/placeholder.svg?height=300&width=300&text=Super+Beast" ? (
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg overflow-hidden aspect-square flex items-center justify-center hover:border-[#D4AF37] transition-all">
+                  {item.image_url && item.image_url !== "/placeholder.svg?height=300&width=300&text=THE+BOX" ? (
                     <img
                       src={filterImageUrl(item.image_url)}
                       alt={item.title}
@@ -138,10 +137,10 @@ export function Gallery() {
                         target.style.display = "none"
                         target.parentElement!.innerHTML = `
                           <div class="text-center">
-                            <div class="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center text-white font-bold text-2xl mb-4 mx-auto">
-                              SB
+                            <div class="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center text-black font-bold text-2xl mb-4 mx-auto">
+                              TB
                             </div>
-                            <h3 class="font-semibold text-gray-900 group-hover:text-[#bb1e39] transition-colors">
+                            <h3 class="font-semibold text-white group-hover:text-[#D4AF37] transition-colors">
                               ${item.title}
                             </h3>
                           </div>
@@ -150,18 +149,20 @@ export function Gallery() {
                     />
                   ) : (
                     <div className="text-center">
-                      <div className="w-16 h-16 gradient-wine-red rounded-full flex items-center justify-center text-white font-bold text-2xl mb-4 mx-auto">
-                        SB
+                      <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center text-black font-bold text-2xl mb-4 mx-auto">
+                        TB
                       </div>
-                      <h3 className="font-semibold text-gray-900 group-hover:text-[#bb1e39] transition-colors">
+                      <h3 className="font-semibold text-white group-hover:text-[#D4AF37] transition-colors">
                         {item.title}
                       </h3>
                     </div>
                   )}
                 </div>
                 <div className="mt-3 text-center">
-                  <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
+                  <h3 className="font-semibold text-white">{item.title}</h3>
+                  {item.description && (
+                    <p className="text-sm text-[#B3B3B3]">{item.description}</p>
+                  )}
                 </div>
               </div>
             ))

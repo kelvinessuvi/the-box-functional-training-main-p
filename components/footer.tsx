@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { usePathname } from "next/navigation"
 
 interface FooterSettings {
   email: string
@@ -15,12 +16,18 @@ interface FooterSettings {
 }
 
 export function Footer() {
+  const pathname = usePathname()
+  
+  // Ocultar footer nas páginas administrativas
+  if (pathname && pathname.startsWith("/admin")) {
+    return null
+  }
   const [settings, setSettings] = useState<FooterSettings>({
-    email: "info@fitem14semanas.com",
-    phone: "+244 XXX XXX XXX",
-    location: "Luanda, Angola",
-    companyName: "Super Beast - Fit Em 14 Semanas",
-    description: "Transformando equipas através de fitness, entretenimento e desenvolvimento pessoal. A experiência corporativa mais inovadora de Angola.",
+    email: "geral@theboxacademy.com",
+    phone: "+244 923 525 886",
+    location: "Luanda e Lisboa",
+    companyName: "THE BOX Functional Training",
+    description: "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal.",
   })
 
   // Carregar configurações da API
@@ -36,11 +43,11 @@ export function Footer() {
         if (response.ok) {
           const data = await response.json()
           setSettings({
-            email: data.email || "info@fitem14semanas.com",
-            phone: data.phone || "+244 XXX XXX XXX",
-            location: data.location || "Luanda, Angola",
-            companyName: data.companyName || "Super Beast - Fit Em 14 Semanas",
-            description: data.description || "Transformando equipas através de fitness, entretenimento e desenvolvimento pessoal. A experiência corporativa mais inovadora de Angola.",
+            email: data.email || "geral@theboxacademy.com",
+            phone: data.phone || "+244 923 525 886",
+            location: data.location || "Luanda e Lisboa",
+            companyName: data.companyName || "THE BOX Functional Training",
+            description: data.description || "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal.",
           })
         }
       } catch (error) {
@@ -53,41 +60,41 @@ export function Footer() {
   }, [])
 
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-4 gap-8">
+    <footer className="bg-black text-white border-t border-[#1A1A1A]">
+      <div className="container mx-auto px-4 py-8 sm:py-10 md:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <Image
-              src="/images/logo.png"
-              alt="Super Beast Team Building"
+              src="/images/the-box-logo.svg"
+              alt="THE BOX Functional Training"
               width={150}
               height={50}
-              className="h-12 w-auto brightness-0 invert"
+              className="h-12 w-auto"
             />
-            <p className="text-gray-300 text-sm">
-              {settings.description || "Transformando equipas através de fitness, entretenimento e desenvolvimento pessoal. A experiência corporativa mais inovadora de Angola."}
+            <p className="text-[#B3B3B3] text-sm">
+              {settings.description || "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal."}
             </p>
-            <p className="text-gray-400 text-sm italic">"Desperta o teu Monstro Interior"</p>
+            <p className="text-[#D4AF37] text-sm font-semibold uppercase">"Aqui o Sistema é Bruto"</p>
 
             <div>
               <h4 className="font-semibold text-white mb-3">Siga-nos</h4>
               <div className="flex space-x-3">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:gradient-wine-red transition-all duration-300"
+                  className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center hover:bg-[#D4AF37] transition-all duration-300"
                 >
                   <Facebook className="h-5 w-5" />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:gradient-wine-red transition-all duration-300"
+                  className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center hover:bg-[#D4AF37] transition-all duration-300"
                 >
                   <Instagram className="h-5 w-5" />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:gradient-wine-red transition-all duration-300"
+                  className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center hover:bg-[#D4AF37] transition-all duration-300"
                 >
                   <Linkedin className="h-5 w-5" />
                 </a>
@@ -97,103 +104,113 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Links Rápidos</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">Links Rápidos</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#home" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="#home" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
                   Início
                 </Link>
               </li>
               <li>
-                <Link href="#about" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="#about" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
                   Sobre Nós
                 </Link>
               </li>
               <li>
-                <Link href="#programs" className="text-gray-300 hover:text-white transition-colors">
-                  Programas
+                <Link href="#modalities" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
+                  Modalidades
                 </Link>
               </li>
               <li>
-                <Link href="#gallery" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="#instructors" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
+                  Instrutores
+                </Link>
+              </li>
+              <li>
+                <Link href="#branches" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
+                  Filiais
+                </Link>
+              </li>
+              <li>
+                <Link href="#gallery" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
                   Galeria
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="#contact" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
                   Contacto
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Services */}
+          {/* About */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Nossos Serviços</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">Sobre a THE BOX</h3>
             <ul className="space-y-2">
               <li>
-                <span className="text-gray-300">Pacote Essencial</span>
+                <span className="text-[#B3B3B3]">Fundada em 2021</span>
               </li>
               <li>
-                <span className="text-gray-300">Pacote Profissional</span>
+                <span className="text-[#B3B3B3]">Associada à GF Team Angola</span>
               </li>
               <li>
-                <span className="text-gray-300">Pacote Premium</span>
+                <span className="text-[#B3B3B3]">4 Filiais em Angola e Portugal</span>
               </li>
               <li>
-                <span className="text-gray-300">Eventos Personalizados</span>
+                <span className="text-[#B3B3B3]">Jiu-Jitsu para todos</span>
               </li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Contacto</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">Contacto</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <Mail className="h-4 w-4 text-[#bb1e39]" />
-                <span className="text-gray-300 text-sm">{settings.email}</span>
+                <Mail className="h-4 w-4 text-[#D4AF37]" />
+                <span className="text-[#B3B3B3] text-sm">{settings.email}</span>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone className="h-4 w-4 text-[#bb1e39]" />
-                <span className="text-gray-300 text-sm">{settings.phone}</span>
+                <Phone className="h-4 w-4 text-[#D4AF37]" />
+                <span className="text-[#B3B3B3] text-sm">{settings.phone}</span>
               </div>
               <div className="flex items-center space-x-3">
-                <MapPin className="h-4 w-4 text-[#bb1e39]" />
-                <span className="text-gray-300 text-sm">{settings.location}</span>
+                <MapPin className="h-4 w-4 text-[#D4AF37]" />
+                <span className="text-[#B3B3B3] text-sm">{settings.location}</span>
               </div>
             </div>
 
-            <Button asChild className="mt-4 gradient-wine-red hover:gradient-wine-red-hover text-white rounded-full">
-              <Link href="#contact">Solicitar Orçamento</Link>
+            <Button asChild className="mt-4 bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold rounded-full">
+              <Link href="#contact">Contactar</Link>
             </Button>
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
+        <div className="border-t border-[#1A1A1A] mt-8 pt-8">
           <div className="grid md:grid-cols-3 gap-4 items-center text-sm">
             <div>
-              <h4 className="font-semibold text-white mb-1">Fundadores</h4>
-              <p className="text-gray-400">Ricardo Buta & Mauro Sérgio</p>
+              <h4 className="font-semibold text-white mb-1">Fundador</h4>
+              <p className="text-[#B3B3B3]">Mário Stefan Pitagrós de Melo Araújo</p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Experiência</h4>
-              <p className="text-gray-400">10+ anos transformando equipas</p>
+              <h4 className="font-semibold text-white mb-1">Associação</h4>
+              <p className="text-[#B3B3B3]">GF Team Angola</p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Resultados</h4>
-              <p className="text-gray-400">95% satisfação • 100+ clientes</p>
+              <h4 className="font-semibold text-white mb-1">Expansão</h4>
+              <p className="text-[#B3B3B3]">Angola e Portugal</p>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-gray-800">
-            <p className="text-gray-400 text-sm">
-              © 2025 Super Beast - Fit Em 14 Semanas. Todos os direitos reservados.
+          <div className="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-[#1A1A1A]">
+            <p className="text-[#B3B3B3] text-sm">
+              © 2025 THE BOX Functional Training. Todos os direitos reservados.
             </p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
-              <p className="text-gray-400 text-sm">Feito com ❤️ em Angola</p>
-              <Button variant="ghost" size="sm" asChild className="text-gray-400 hover:text-white">
+              <p className="text-[#B3B3B3] text-sm"> Feito por Veto de Araújo </p>
+              <Button variant="ghost" size="sm" asChild className="text-[#B3B3B3] hover:text-[#D4AF37]">
                 <Link href="/admin">Admin</Link>
               </Button>
             </div>
