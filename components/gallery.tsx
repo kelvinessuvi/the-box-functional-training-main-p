@@ -2,19 +2,28 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "@/contexts/language-context"
 
 export function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("Todas")
   const [galleryItems, setGalleryItems] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { t, language } = useTranslation()
 
-  const categories = [
-    { id: "Todas", name: "Todas" },
-    { id: "instrutores", name: "Instrutores" },
-    { id: "aulas", name: "Aulas" },
-    { id: "eventos", name: "Eventos" },
-  ]
+  const categories = language === "pt" 
+    ? [
+        { id: "Todas", name: "Todas" },
+        { id: "instrutores", name: "Instrutores" },
+        { id: "aulas", name: "Aulas" },
+        { id: "eventos", name: "Eventos" },
+      ]
+    : [
+        { id: "Todas", name: "All" },
+        { id: "instrutores", name: "Instructors" },
+        { id: "aulas", name: "Classes" },
+        { id: "eventos", name: "Events" },
+      ]
 
   // Função para filtrar URLs externas problemáticas
   const filterImageUrl = (url: string) => {
@@ -77,10 +86,10 @@ export function Gallery() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4 text-white">
-            <span className="text-[#D4AF37]">Galeria</span> de Momentos
+            <span className="text-[#D4AF37]">{t.gallery.title}</span> {language === "pt" ? "de Momentos" : "of Moments"}
           </h2>
           <p className="text-[#B3B3B3] max-w-3xl mx-auto text-lg">
-            Veja alguns dos momentos mais marcantes da THE BOX. Instrutores, aulas e eventos especiais que contam a nossa história.
+            {t.gallery.subtitle}
           </p>
         </div>
 
@@ -106,7 +115,7 @@ export function Gallery() {
         {error && (
           <div className="bg-[#1A1A1A] border border-[#D4AF37] rounded-lg p-4 mb-8 max-w-2xl mx-auto">
             <p className="text-[#D4AF37] text-center">
-              <strong>Aviso:</strong> Não foi possível carregar as imagens do servidor.
+              <strong>{language === "pt" ? "Aviso:" : "Warning:"}</strong> {language === "pt" ? "Não foi possível carregar as imagens do servidor." : "Could not load images from server."}
             </p>
           </div>
         )}
@@ -116,11 +125,13 @@ export function Gallery() {
           {isLoading ? (
             <div className="col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 text-center py-8 sm:py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
-              <p className="text-[#B3B3B3]">Carregando imagens...</p>
+              <p className="text-[#B3B3B3]">{t.common.loading}</p>
             </div>
           ) : galleryItems.length === 0 ? (
             <div className="col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-4 text-center py-8 sm:py-12">
-              <p className="text-sm text-[#B3B3B3] sm:text-base">Nenhuma imagem encontrada para esta categoria.</p>
+              <p className="text-sm text-[#B3B3B3] sm:text-base">
+                {language === "pt" ? "Nenhuma imagem encontrada para esta categoria." : "No images found for this category."}
+              </p>
             </div>
           ) : (
             galleryItems.map((item) => (

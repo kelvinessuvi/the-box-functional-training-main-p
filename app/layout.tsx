@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { DatabaseSetupBanner } from "@/components/database-setup-banner"
 import { Toaster } from "sonner"
+import { LanguageProvider } from "@/contexts/language-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -14,7 +15,17 @@ export const metadata: Metadata = {
   description:
     "Academia de Artes Marciais com foco em Jiu-Jitsu. Transformamos vidas através do treino, disciplina e desenvolvimento pessoal em Angola e Portugal.",
   keywords: "jiu-jitsu, artes marciais, the box, functional training, angola, portugal, gf team, treino, disciplina",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/images/the-box-logo.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.png',
+  },
 }
 
 export default function RootLayout({
@@ -25,11 +36,13 @@ export default function RootLayout({
   return (
     <html lang="pt" className="scroll-smooth">
       <body className={inter.className}>
-        <DatabaseSetupBanner />
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <Toaster position="top-right" richColors />
+        <LanguageProvider>
+          <DatabaseSetupBanner />
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <Toaster position="top-right" richColors />
+        </LanguageProvider>
       </body>
     </html>
   )

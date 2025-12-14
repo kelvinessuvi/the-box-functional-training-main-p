@@ -10,7 +10,8 @@ export async function GET() {
     const supabase = getServiceClient()!
     const { data, error } = await supabase
       .from("instructors")
-      .select("id, name, title, bio, photo_url, specialties, instagram_url, active")
+      .select("id, name, title, bio, photo_url, specialties, instagram_url, active, display_order")
+      .order("display_order", { ascending: true, nullsFirst: false })
       .order("name", { ascending: true })
 
     if (error) {

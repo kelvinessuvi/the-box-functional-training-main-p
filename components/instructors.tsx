@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import { Award, User } from "lucide-react"
 import { InstructorDetailModal } from "./instructor-detail-modal"
+import { useTranslation } from "@/contexts/language-context"
 
 type Instructor = {
   id: string
@@ -22,6 +23,7 @@ export function Instructors() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const load = async () => {
@@ -43,7 +45,7 @@ export function Instructors() {
     return (
       <section id="instructors" className="py-16 bg-black">
         <div className="container mx-auto px-4">
-          <p className="text-center text-[#B3B3B3]">Carregando instrutores...</p>
+          <p className="text-center text-[#B3B3B3]">{t.common.loading}</p>
         </div>
       </section>
     )
@@ -54,21 +56,20 @@ export function Instructors() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4 text-white">
-            Nossos <span className="text-[#D4AF37]">Instrutores</span>
+            {t.instructors.title.split(' ').slice(0, -1).join(' ')} <span className="text-[#D4AF37]">{t.instructors.title.split(' ').slice(-1)}</span>
           </h2>
           <p className="text-[#B3B3B3] max-w-3xl mx-auto text-lg">
-            Conheça os instrutores qualificados da THE BOX, dedicados ao seu desenvolvimento e crescimento no Jiu-Jitsu.
+            {t.instructors.subtitle}
           </p>
         </div>
 
         {instructors.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[#B3B3B3]">Nenhum instrutor disponível no momento.</p>
-            <p className="text-[#B3B3B3] text-sm mt-2">Os instrutores serão adicionados em breve.</p>
+            <p className="text-[#B3B3B3]">{t.common.loading}</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
               {instructors.map((instructor) => (
                 <Card 
                   key={instructor.id} 
@@ -80,42 +81,52 @@ export function Instructors() {
                 >
                   <CardContent className="p-0">
                   {/* Photo */}
-                  <div className="relative h-64 bg-[#1A1A1A] flex items-center justify-center overflow-hidden">
+                  <div className="relative h-44 sm:h-48 bg-[#1A1A1A] flex items-center justify-center overflow-hidden">
                     {instructor.photo_url ? (
                       <Image
                         src={instructor.photo_url}
                         alt={instructor.name}
                         fill
                         className="object-contain p-2"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 50vw, 25vw"
                       />
                     ) : (
-                      <div className="w-32 h-32 bg-[#D4AF37] rounded-full flex items-center justify-center">
-                        <User className="w-16 h-16 text-black" />
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#D4AF37] rounded-full flex items-center justify-center">
+                        <User className="w-10 h-10 sm:w-12 sm:h-12 text-black" />
                       </div>
                     )}
                   </div>
                   
                   {/* Info */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2">{instructor.name}</h3>
+                  <div className="p-4">
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-1">{instructor.name}</h3>
                     {instructor.title && (
-                      <p className="text-[#D4AF37] font-semibold mb-3">{instructor.title}</p>
+                      <p className="text-[#D4AF37] font-semibold text-xs sm:text-sm mb-2">{instructor.title}</p>
                     )}
                     {instructor.bio && (
-                      <p className="text-[#B3B3B3] text-sm leading-relaxed mb-4">{instructor.bio}</p>
+                      <div className="mb-3">
+                        <p className="text-[#B3B3B3] text-xs leading-relaxed line-clamp-2">
+                          {instructor.bio}
+                        </p>
+                        <span className="text-[#D4AF37] text-xs font-medium mt-1 inline-block hover:underline">
+                          ...{t.instructors.readMore}
+                        </span>
+                      </div>
                     )}
                     {instructor.specialties && Array.isArray(instructor.specialties) && instructor.specialties.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {instructor.specialties.map((specialty, idx) => (
+                      <div className="flex flex-wrap gap-1">
+                        {instructor.specialties.slice(0, 2).map((specialty, idx) => (
                           <span
                             key={idx}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-[#1A1A1A] border border-[#D4AF37] rounded-full text-xs text-[#D4AF37]"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#1A1A1A] border border-[#D4AF37] rounded-full text-[10px] text-[#D4AF37]"
                           >
-                            <Award className="w-3 h-3" />
+                            <Award className="w-2.5 h-2.5" />
                             {specialty}
                           </span>
                         ))}
+                        {instructor.specialties.length > 2 && (
+                          <span className="text-[10px] text-[#B3B3B3]">+{instructor.specialties.length - 2}</span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -140,4 +151,3 @@ export function Instructors() {
 }
 
 export default Instructors
-

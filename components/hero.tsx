@@ -1,6 +1,11 @@
+"use client"
+
 import Image from "next/image"
+import { useTranslation } from "@/contexts/language-context"
 
 export default function Hero() {
+  const { t } = useTranslation()
+
   return (
     <section id="home" className="relative isolate w-full overflow-hidden min-h-[90vh] flex items-center">
       {/* Background Image */}
@@ -29,12 +34,12 @@ export default function Hero() {
         
         {/* Main Heading */}
         <h1 className="text-3xl font-black leading-tight tracking-tight text-[#D4AF37] sm:text-4xl md:text-5xl lg:text-6xl drop-shadow-lg">
-          AQUI O SISTEMA É BRUTO
+          {t.hero.slogan.toUpperCase()}
         </h1>
         
         {/* Description */}
         <p className="max-w-3xl text-balance text-sm text-white sm:text-base md:text-lg lg:text-xl drop-shadow-md text-[#B3B3B3]">
-          Academia de Artes Marciais com foco em Jiu-Jitsu. Transformamos vidas através do treino, disciplina e desenvolvimento pessoal em Angola e Portugal.
+          {t.hero.description}
         </p>
       </div>
     </section>

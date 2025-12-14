@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle, MessageCircle } from "lucide-react"
+import { useTranslation } from "@/contexts/language-context"
 
 interface ContactSettings {
   email: string
@@ -39,6 +39,7 @@ export function Contact() {
     workingHours: "Seg-Sex: 08:00-21:00",
   })
   const [isLoadingSettings, setIsLoadingSettings] = useState(true)
+  const { t, language } = useTranslation()
 
   // Carregar configurações de contato da API
   useEffect(() => {
@@ -80,14 +81,14 @@ export function Contact() {
     const whatsappNumber = "244923525886"
     
     // Formatar mensagem
-    const message = `*Mensagem da THE BOX Website*
+    const message = `*${language === "pt" ? "Mensagem da THE BOX Website" : "Message from THE BOX Website"}*
 
-*Nome:* ${formData.name}
+*${t.contact.form.name}:* ${formData.name}
 *Email:* ${formData.email}
-${formData.phone ? `*Telefone:* ${formData.phone}` : ''}
-*Assunto:* ${formData.subject}
+${formData.phone ? `*${t.contact.form.phone}:* ${formData.phone}` : ''}
+*${t.contact.form.subject}:* ${formData.subject}
 
-*Mensagem:*
+*${t.contact.form.message}:*
 ${formData.message}`
 
     // Codificar mensagem para URL
@@ -102,7 +103,9 @@ ${formData.message}`
     // Mostrar mensagem de sucesso
       setFormStatus({
         type: "success",
-      message: "Redirecionando para o WhatsApp... A mensagem será enviada diretamente!",
+      message: language === "pt" 
+        ? "Redirecionando para o WhatsApp... A mensagem será enviada diretamente!"
+        : "Redirecting to WhatsApp... The message will be sent directly!",
       })
     
     // Limpar formulário
@@ -148,19 +151,19 @@ ${formData.message}`
     },
     {
       icon: Phone,
-      title: "Telefone",
+      title: t.contact.info.phone,
       content: contactInfo.phone,
       link: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
       isLink: true,
     },
     {
       icon: MapPin,
-      title: "Localização",
+      title: t.contact.info.address,
       content: contactInfo.location,
     },
     {
       icon: Clock,
-      title: "Horário",
+      title: t.contact.info.hours,
       content: contactInfo.workingHours,
     },
   ]
@@ -171,10 +174,14 @@ ${formData.message}`
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold sm:text-4xl mb-4 text-white">
-              Entre em <span className="text-[#D4AF37]">Contacto</span>
+              {language === "pt" ? (
+                <>Entre em <span className="text-[#D4AF37]">Contacto</span></>
+              ) : (
+                <>Get in <span className="text-[#D4AF37]">Touch</span></>
+              )}
             </h2>
             <p className="text-[#B3B3B3] max-w-2xl mx-auto">
-              Tem alguma dúvida ou quer saber mais sobre a THE BOX? Entre em contacto connosco!
+              {t.contact.subtitle}
             </p>
           </div>
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
@@ -182,7 +189,9 @@ ${formData.message}`
             <div>
               <Card className="shadow-lg bg-[#0A0A0A] border-[#1A1A1A]">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-white">Enviar Mensagem</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-white">
+                    {language === "pt" ? "Enviar Mensagem" : "Send Message"}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {formStatus.type && (
@@ -209,14 +218,14 @@ ${formData.message}`
                   <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-white">Nome Completo *</Label>
+                        <Label htmlFor="name" className="text-white">{t.contact.form.name} *</Label>
                         <Input
                           id="name"
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
                           required
-                          placeholder="Seu nome"
+                          placeholder={t.contact.form.namePlaceholder}
                           className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                         />
                       </div>
@@ -229,39 +238,39 @@ ${formData.message}`
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          placeholder="seu@email.com"
+                          placeholder={t.contact.form.emailPlaceholder}
                           className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                         />
                       </div>
                     </div>
 
                       <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-white">Telefone</Label>
+                      <Label htmlFor="phone" className="text-white">{t.contact.form.phone}</Label>
                         <Input
                           id="phone"
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
-                          placeholder="+244 XXX XXX XXX"
+                          placeholder={t.contact.form.phonePlaceholder}
                         className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                         />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="subject" className="text-white">Assunto *</Label>
+                      <Label htmlFor="subject" className="text-white">{t.contact.form.subject} *</Label>
                       <Input
                         id="subject"
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
                         required
-                        placeholder="Assunto da mensagem"
+                        placeholder={language === "pt" ? "Assunto da mensagem" : "Message subject"}
                         className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message" className="text-white">Mensagem *</Label>
+                      <Label htmlFor="message" className="text-white">{t.contact.form.message} *</Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -269,7 +278,7 @@ ${formData.message}`
                         onChange={handleChange}
                         required
                         rows={4}
-                        placeholder="Conte-nos mais sobre as suas necessidades..."
+                        placeholder={t.contact.form.messagePlaceholder}
                         className="bg-[#1A1A1A] border-[#1A1A1A] text-white"
                       />
                     </div>
@@ -279,7 +288,7 @@ ${formData.message}`
                       className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
                     >
                       <Send className="h-4 w-4 mr-2" />
-                      Enviar para WhatsApp
+                      {language === "pt" ? "Enviar para WhatsApp" : "Send to WhatsApp"}
                     </Button>
                   </form>
                 </CardContent>
@@ -289,7 +298,7 @@ ${formData.message}`
             {/* Contact Information */}
             <div className="space-y-4 sm:space-y-6">
               {isLoadingSettings ? (
-                <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-[#B3B3B3]">Carregando informações de contato...</div>
+                <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-[#B3B3B3]">{t.common.loading}</div>
               ) : (
                 contactInfoArray.map((info, index) => (
                   <Card key={index} className={`bg-[#0A0A0A] border-[#1A1A1A] ${info.isLink ? 'hover:border-[#D4AF37] cursor-pointer transition-all' : ''}`}>

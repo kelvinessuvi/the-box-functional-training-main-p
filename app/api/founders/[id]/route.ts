@@ -1,0 +1,131 @@
+import { type NextRequest, NextResponse } from "next/server"
+import { getServiceClient, isSupabaseConfigured } from "@/lib/supabase/server"
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ error: "Supabase não configurado" }, { status: 500 })
+    }
+
+    const supabase = getServiceClient()!
+    const formData = await request.formData()
+    
+    const name = formData.get("name") as string
+    const full_name = formData.get("full_name") as string
+    const role = formData.get("role") as string || "Co-Fundador"
+    const photo = formData.get("photo") as File | null
+    const keepCurrentPhoto = formData.get("keepCurrentPhoto") === "true"
+    const removePhoto = formData.get("removePhoto") === "true"
+
+    if (!name) {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
+    }
+
+    const updateData: Record<string, any> = {
+      name,
+      full_name: full_name || name,
+      role,
+    }
+
+    // Se removePhoto, definir photo_url como null
+    if (removePhoto) {
+      updateData.photo_url = null
+    }
+    // Se não manter a foto atual e houver nova foto
+    else if (!keepCurrentPhoto && photo && photo.size > 0) {
+      // Validar tipo de arquivo
+      if (!photo.type || !photo.type.startsWith("image/")) {
+        return NextResponse.json({ error: "Arquivo deve ser uma imagem válida" }, { status: 400 })
+      }
+      
+      // Validar tamanho (máx 10MB)
+      if (photo.size > 10 * 1024 * 1024) {
+        return NextResponse.json({ error: "Imagem deve ter no máximo 10MB" }, { status: 400 })
+      }
+
+      const safeName = photo.name?.replace(/[^a-zA-Z0-9.-]/g, "_") || "upload.jpg"
+      const fileName = `${Date.now()}-${safeName}`
+      const filePath = `founders/${fileName}`
+
+      try {
+        // Converter File para ArrayBuffer e depois para Blob
+        const arrayBuffer = await photo.arrayBuffer()
+        const blob = new Blob([arrayBuffer], { type: photo.type })
+        
+        const { error: uploadError } = await supabase.storage
+          .from("images")
+          .upload(filePath, blob, {
+            contentType: photo.type,
+            cacheControl: "3600",
+            upsert: false,
+          })
+
+        if (uploadError) {
+          console.error("[FOUNDERS API] Erro no upload:", uploadError)
+          return NextResponse.json({ error: `Falha no upload: ${uploadError.message}` }, { status: 500 })
+        }
+
+        const { data: publicUrl } = supabase.storage
+          .from("images")
+          .getPublicUrl(filePath)
+
+        updateData.photo_url = publicUrl.publicUrl
+      } catch (e: any) {
+        console.error("[FOUNDERS API] Upload exception:", e)
+        return NextResponse.json({ error: `Erro ao processar upload: ${e?.message || e}` }, { status: 500 })
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("founders")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("[FOUNDERS API] Erro ao atualizar fundador:", error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("[FOUNDERS API] Erro:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ error: "Supabase não configurado" }, { status: 500 })
+    }
+
+    const supabase = getServiceClient()!
+
+    const { error } = await supabase
+      .from("founders")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+      console.error("[FOUNDERS API] Erro ao excluir fundador:", error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("[FOUNDERS API] Erro:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  }
+}

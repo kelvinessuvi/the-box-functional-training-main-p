@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart3, MessageSquare, ImageIcon, Package, LogOut, Plus, Edit, Trash2, Eye, Lock, RefreshCw, Users, MapPin } from "lucide-react"
+import { BarChart3, MessageSquare, ImageIcon, Package, LogOut, Plus, Edit, Trash2, Eye, Lock, RefreshCw, Users, MapPin, Handshake, GripVertical, Crown } from "lucide-react"
 import Link from "next/link"
 import { GalleryModal } from "./gallery-modal"
 import { PlanModal } from "./plan-modal"
@@ -12,6 +12,8 @@ import { MessageModal } from "./message-modal"
 import { ChangePasswordModal } from "./change-password-modal"
 import { InstructorModal } from "./instructor-modal"
 import { BranchModal } from "./branch-modal"
+import { PartnerModal } from "./partner-modal"
+import { FounderModal } from "./founder-modal"
 import SettingsTab from "./settings-tab"
 import ExportButtons from "./export-buttons"
 import { useRouter } from "next/navigation"
@@ -19,6 +21,23 @@ import { toast } from "sonner"
 import { shouldShowDebug } from "@/config/debug"
 import { useDirectDatabase } from "@/hooks/use-direct-database"
 import { UserManagement } from "./user-management"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 
 export function AdminDashboard() {
   const router = useRouter()
@@ -29,6 +48,8 @@ export function AdminDashboard() {
   const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false)
   const [instructorModalOpen, setInstructorModalOpen] = useState(false)
   const [branchModalOpen, setBranchModalOpen] = useState(false)
+  const [partnerModalOpen, setPartnerModalOpen] = useState(false)
+  const [founderModalOpen, setFounderModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<any>(null)
   const [selectedMessage, setSelectedMessage] = useState<any>(null)
 
@@ -44,6 +65,8 @@ export function AdminDashboard() {
   const [modalities, setModalities] = useState<any[]>([])
   const [instructors, setInstructors] = useState<any[]>([])
   const [branches, setBranches] = useState<any[]>([])
+  const [partners, setPartners] = useState<any[]>([])
+  const [founders, setFounders] = useState<any[]>([])
   const [galleryImages, setGalleryImages] = useState<any[]>([])
   const [galleryCategoryFilter, setGalleryCategoryFilter] = useState<string | null>(null)
   const [galleryPage, setGalleryPage] = useState(1)
@@ -132,6 +155,30 @@ export function AdminDashboard() {
       })
       const branchesData = await branchesResponse.json()
       setBranches(Array.isArray(branchesData) ? branchesData : [])
+
+      // Carregar parceiros
+      const partnersResponse = await fetch("/api/partners", { 
+        cache: "no-store", 
+        credentials: "same-origin",
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      const partnersData = await partnersResponse.json()
+      setPartners(Array.isArray(partnersData) ? partnersData : [])
+
+      // Carregar fundadores
+      const foundersResponse = await fetch("/api/founders", { 
+        cache: "no-store", 
+        credentials: "same-origin",
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+      const foundersData = await foundersResponse.json()
+      setFounders(Array.isArray(foundersData) ? foundersData : [])
 
       // Carregar imagens da galeria
       const query = new URLSearchParams()
@@ -481,9 +528,204 @@ export function AdminDashboard() {
     }
   }
 
+  // Funções para parceiros
+  const handleSavePartner = async (data: any) => {
+    try {
+      console.log("[DASHBOARD] Salvando parceiro:", data, "Editing:", editingItem ? editingItem.id : "novo")
+      
+      const formData = new FormData()
+      formData.append("name", data.name)
+      formData.append("description", data.description || "")
+      formData.append("website_url", data.website_url || "")
+      formData.append("active", data.active ? "true" : "false")
+      if (data.logo) {
+        formData.append("logo", data.logo)
+      }
+      if (data.removeLogo) {
+        formData.append("removeLogo", "true")
+      } else if (editingItem && !data.logo) {
+        formData.append("keepCurrentLogo", "true")
+      }
+      
+      if (editingItem) {
+        const response = await fetch(`/api/partners/${editingItem.id}`, {
+          method: "PUT",
+          body: formData,
+          credentials: "same-origin",
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+          throw new Error(errorData.error || "Erro ao atualizar parceiro")
+        }
+
+        const updatedPartner = await response.json()
+        setPartners((prev) => prev.map((partner: any) => (partner.id === editingItem.id ? updatedPartner : partner)))
+        toast.success("Parceiro atualizado com sucesso!")
+        refreshStats()
+        await refreshData()
+      } else {
+        const response = await fetch("/api/partners", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+          throw new Error(errorData.error || "Erro ao criar parceiro")
+        }
+
+        const newPartner = await response.json()
+        setPartners((prev) => [...prev, newPartner])
+        toast.success("Parceiro criado com sucesso!")
+        refreshStats()
+        await refreshData()
+      }
+
+      setEditingItem(null)
+    } catch (error: any) {
+      console.error("[DASHBOARD] Erro ao salvar parceiro:", error)
+      toast.error(error.message || "Ocorreu um erro ao salvar o parceiro.")
+    }
+  }
+
+  // Funções para fundadores
+  const handleSaveFounder = async (data: any) => {
+    try {
+      console.log("[DASHBOARD] Salvando fundador:", data, "Editing:", editingItem ? editingItem.id : "novo")
+      
+      const formData = new FormData()
+      formData.append("name", data.name)
+      formData.append("full_name", data.full_name || "")
+      formData.append("role", data.role || "Co-Fundador")
+      if (data.photo) {
+        formData.append("photo", data.photo)
+      }
+      if (data.removePhoto) {
+        formData.append("removePhoto", "true")
+      } else if (editingItem && !data.photo) {
+        formData.append("keepCurrentPhoto", "true")
+      }
+      
+      if (editingItem) {
+        const response = await fetch(`/api/founders/${editingItem.id}`, {
+          method: "PUT",
+          body: formData,
+          credentials: "same-origin",
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+          throw new Error(errorData.error || "Erro ao atualizar fundador")
+        }
+
+        const updatedFounder = await response.json()
+        setFounders((prev) => prev.map((founder: any) => (founder.id === editingItem.id ? updatedFounder : founder)))
+        toast.success("Fundador atualizado com sucesso!")
+        await refreshData()
+      } else {
+        const response = await fetch("/api/founders", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+          throw new Error(errorData.error || "Erro ao criar fundador")
+        }
+
+        const newFounder = await response.json()
+        setFounders((prev) => [...prev, newFounder])
+        toast.success("Fundador criado com sucesso!")
+        await refreshData()
+      }
+
+      setEditingItem(null)
+    } catch (error: any) {
+      console.error("[DASHBOARD] Erro ao salvar fundador:", error)
+      toast.error(error.message || "Ocorreu um erro ao salvar o fundador.")
+    }
+  }
+
+  const handleDeleteFounder = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este fundador?")) return
+
+    try {
+      const response = await fetch(`/api/founders/${id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+        cache: "no-store",
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Erro desconhecido" }))
+        throw new Error(errorData.error || "Erro ao excluir fundador")
+      }
+
+      setFounders((prev) => prev.filter((founder: any) => founder.id !== id))
+      toast.success("Fundador excluído com sucesso!")
+      await refreshData()
+    } catch (error: any) {
+      console.error("[DASHBOARD] Erro ao excluir fundador:", error)
+      toast.error(error.message || "Ocorreu um erro ao excluir o fundador.")
+    }
+  }
+
+  // Função para reordenar instrutores com drag and drop
+  const handleReorderInstructors = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = instructors.findIndex((i: any) => i.id === active.id)
+      const newIndex = instructors.findIndex((i: any) => i.id === over.id)
+
+      const newOrder = arrayMove(instructors, oldIndex, newIndex)
+      setInstructors(newOrder)
+
+      // Salvar a nova ordem no backend
+      try {
+        const response = await fetch("/api/instructors/reorder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderedIds: newOrder.map((i: any) => i.id) }),
+          credentials: "same-origin",
+        })
+
+        if (!response.ok) {
+          throw new Error("Falha ao salvar a ordem")
+        }
+
+        toast.success("Ordem dos instrutores atualizada!")
+      } catch (error) {
+        console.error("[DASHBOARD] Erro ao reordenar:", error)
+        toast.error("Erro ao salvar a nova ordem")
+        // Reverter a mudança em caso de erro
+        await refreshData()
+      }
+    }
+  }
+
+  // Sensores para drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
   // Função para excluir itens
-  const handleDeleteItem = async (id: string, type: "gallery" | "modality" | "message" | "instructor" | "branch") => {
-    let itemLabel = type === 'gallery' ? 'imagem' : type === 'modality' ? 'modalidade' : type === 'message' ? 'mensagem' : type === 'instructor' ? 'instrutor' : 'filial'
+  const handleDeleteItem = async (id: string, type: "gallery" | "modality" | "message" | "instructor" | "branch" | "partner") => {
+    let itemLabel = type === 'gallery' ? 'imagem' : type === 'modality' ? 'modalidade' : type === 'message' ? 'mensagem' : type === 'instructor' ? 'instrutor' : type === 'branch' ? 'filial' : 'parceiro'
     if (!confirm(`Tem certeza que deseja excluir este(a) ${itemLabel}?`)) return
 
     try {
@@ -504,6 +746,9 @@ export function AdminDashboard() {
           break
         case "branch":
           endpoint = `/api/branches/${id}`
+          break
+        case "partner":
+          endpoint = `/api/partners/${id}`
           break
       }
 
@@ -534,6 +779,8 @@ export function AdminDashboard() {
           errorMessage = errorData.error || "Erro ao excluir instrutor"
         } else if (type === "branch") {
           errorMessage = errorData.error || "Erro ao excluir filial"
+        } else if (type === "partner") {
+          errorMessage = errorData.error || "Erro ao excluir parceiro"
         }
         
         throw new Error(errorMessage)
@@ -563,6 +810,11 @@ export function AdminDashboard() {
       } else if (type === "branch") {
         setBranches((prev) => prev.filter((branch: any) => branch.id !== id))
         toast.success("Filial excluída com sucesso!")
+        refreshStats()
+        await refreshData()
+      } else if (type === "partner") {
+        setPartners((prev) => prev.filter((partner: any) => partner.id !== id))
+        toast.success("Parceiro excluído com sucesso!")
         refreshStats()
         await refreshData()
       }
@@ -737,12 +989,13 @@ export function AdminDashboard() {
         {/* Removed demo mode banner */}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-1 sm:gap-2 h-auto bg-[#0A0A0A] border border-[#1A1A1A] overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-1 sm:gap-2 h-auto bg-[#0A0A0A] border border-[#1A1A1A] overflow-x-auto">
             <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Visão Geral</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Galeria</TabsTrigger>
             <TabsTrigger value="modalities" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Modalidades</TabsTrigger>
             <TabsTrigger value="instructors" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Instrutores</TabsTrigger>
             <TabsTrigger value="branches" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Filiais</TabsTrigger>
+            <TabsTrigger value="partners" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Parceiros</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Mensagens</TabsTrigger>
             <TabsTrigger value="users" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Usuários</TabsTrigger>
             <TabsTrigger value="settings" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Configurações</TabsTrigger>
@@ -1146,8 +1399,99 @@ export function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="instructors" className="space-y-4 sm:space-y-6">
+            {/* Seção de Fundadores */}
+            <Card className="bg-[#0A0A0A] border-[#1A1A1A]">
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-5 w-5 text-[#D4AF37]" />
+                    <CardTitle className="text-white">Fundadores</CardTitle>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+                    onClick={() => {
+                      setEditingItem(null)
+                      setFounderModalOpen(true)
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Fundador
+                  </Button>
+                </div>
+                <CardDescription className="text-[#B3B3B3]">
+                  Gerencie as fotos e informações dos fundadores que aparecem na seção "Quem Somos"
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <p className="text-center py-4 text-[#B3B3B3]">Carregando fundadores...</p>
+                ) : !Array.isArray(founders) || founders.length === 0 ? (
+                  <p className="text-center py-4 text-[#B3B3B3]">Nenhum fundador cadastrado</p>
+                ) : (
+                  <div className="flex flex-wrap justify-center gap-6">
+                    {founders.map((founder: any) => (
+                      <div key={founder.id} className="text-center group">
+                        <div className="relative mb-3">
+                          {/* Foto */}
+                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full overflow-hidden border-2 border-[#D4AF37]/50 group-hover:border-[#D4AF37] transition-all">
+                            {founder.photo_url ? (
+                              <img
+                                src={founder.photo_url}
+                                alt={founder.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-[#D4AF37] to-[#B8960C] flex items-center justify-center">
+                                <span className="text-2xl sm:text-3xl font-bold text-black">
+                                  {founder.name.split(' ').map((n: string) => n[0]).join('')}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Botões de ação */}
+                          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingItem(founder)
+                                setFounderModalOpen(true)
+                              }}
+                              className="h-7 w-7 p-0 bg-[#0A0A0A] border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteFounder(founder.id)}
+                              className="h-7 w-7 p-0 bg-[#0A0A0A] border-[#1A1A1A] text-white hover:border-red-500 hover:text-red-500"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <h4 className="text-sm sm:text-base font-bold text-white">{founder.name}</h4>
+                        <p className="text-[#D4AF37] text-xs font-medium">{founder.role}</p>
+                        {!founder.photo_url && (
+                          <p className="text-[10px] text-[#B3B3B3] mt-1">Sem foto</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Seção de Instrutores */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão de Instrutores</h2>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão de Instrutores</h2>
+                <p className="text-xs text-[#B3B3B3] mt-1">Arraste os cards para reordenar a exibição</p>
+              </div>
               <Button
                 className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm sm:text-base w-full sm:w-auto"
                 onClick={() => {
@@ -1160,88 +1504,50 @@ export function AdminDashboard() {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {isLoading ? (
-                <p className="text-center py-8 col-span-full text-[#B3B3B3]">Carregando instrutores...</p>
-              ) : !Array.isArray(instructors) || instructors.length === 0 ? (
-                <div className="col-span-full text-center py-12">
-                  <Users className="h-12 w-12 text-[#B3B3B3] mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">Nenhum instrutor cadastrado</h3>
-                  <p className="text-[#B3B3B3] mb-4">Comece adicionando seu primeiro instrutor à THE BOX.</p>
-                  <Button
-                    className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
-                    onClick={() => {
-                      setEditingItem(null)
-                      setInstructorModalOpen(true)
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Adicionar Primeiro Instrutor
-                  </Button>
-                </div>
-              ) : (
-                instructors.map((instructor) => (
-                  <Card key={instructor.id} className="bg-[#0A0A0A] border-[#1A1A1A]">
-                    <CardHeader>
-                      {instructor.photo_url && (
-                        <div className="relative w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-2 border-[#D4AF37] bg-[#1A1A1A]">
-                          <img
-                            src={instructor.photo_url}
-                            alt={instructor.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement
-                              target.style.display = "none"
-                            }}
-                          />
-                        </div>
-                      )}
-                      <CardTitle className="text-white text-center">{instructor.name}</CardTitle>
-                      <CardDescription className="text-[#D4AF37] text-center">{instructor.title}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {instructor.bio && (
-                        <p className="text-sm text-[#B3B3B3] mb-4 line-clamp-3">{instructor.bio}</p>
-                      )}
-                      {instructor.specialties && Array.isArray(instructor.specialties) && instructor.specialties.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {instructor.specialties.map((specialty: string, idx: number) => (
-                            <span key={idx} className="bg-[#1A1A1A] text-[#B3B3B3] text-xs px-2 py-1 rounded-full border border-[#1A1A1A]">
-                              {specialty}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs w-fit ${
-                            instructor.active ? "bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37]" : "bg-[#1A1A1A] text-[#B3B3B3] border border-[#1A1A1A]"
-                          }`}
-                        >
-                          {instructor.active ? "Ativo" : "Inativo"}
-                        </span>
-                        <div className="flex space-x-2 justify-end sm:justify-start">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setEditingItem(instructor)
-                              setInstructorModalOpen(true)
-                            }}
-                            className="h-8 sm:h-9 border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]"
-                          >
-                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleDeleteItem(instructor.id, "instructor")} className="h-8 sm:h-9 border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]">
-                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            {isLoading ? (
+              <p className="text-center py-8 text-[#B3B3B3]">Carregando instrutores...</p>
+            ) : !Array.isArray(instructors) || instructors.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="h-12 w-12 text-[#B3B3B3] mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">Nenhum instrutor cadastrado</h3>
+                <p className="text-[#B3B3B3] mb-4">Comece adicionando seu primeiro instrutor à THE BOX.</p>
+                <Button
+                  className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+                  onClick={() => {
+                    setEditingItem(null)
+                    setInstructorModalOpen(true)
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Primeiro Instrutor
+                </Button>
+              </div>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleReorderInstructors}
+              >
+                <SortableContext
+                  items={instructors.map((i: any) => i.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {instructors.map((instructor: any) => (
+                      <SortableInstructorCard
+                        key={instructor.id}
+                        instructor={instructor}
+                        onEdit={(inst) => {
+                          setEditingItem(inst)
+                          setInstructorModalOpen(true)
+                        }}
+                        onDelete={(id) => handleDeleteItem(id, "instructor")}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
           </TabsContent>
 
           <TabsContent value="branches" className="space-y-4 sm:space-y-6">
@@ -1327,6 +1633,105 @@ export function AdminDashboard() {
                             <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => handleDeleteItem(branch.id, "branch")} className="h-8 sm:h-9 border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]">
+                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="partners" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão de Parceiros</h2>
+              <Button
+                className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold text-sm sm:text-base w-full sm:w-auto"
+                onClick={() => {
+                  setEditingItem(null)
+                  setPartnerModalOpen(true)
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Parceiro
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {isLoading ? (
+                <p className="text-center py-8 col-span-full text-[#B3B3B3]">Carregando parceiros...</p>
+              ) : !Array.isArray(partners) || partners.length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <Handshake className="h-12 w-12 text-[#B3B3B3] mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-white mb-2">Nenhum parceiro cadastrado</h3>
+                  <p className="text-[#B3B3B3] mb-4">Comece adicionando seu primeiro parceiro.</p>
+                  <Button
+                    className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold"
+                    onClick={() => {
+                      setEditingItem(null)
+                      setPartnerModalOpen(true)
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Primeiro Parceiro
+                  </Button>
+                </div>
+              ) : (
+                partners.map((partner) => (
+                  <Card key={partner.id} className="bg-[#0A0A0A] border-[#1A1A1A]">
+                    <CardHeader>
+                      {partner.logo_url && (
+                        <div className="relative w-full h-32 mb-4 rounded-lg overflow-hidden bg-white flex items-center justify-center p-4">
+                          <img
+                            src={partner.logo_url}
+                            alt={partner.name}
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.style.display = "none"
+                            }}
+                          />
+                        </div>
+                      )}
+                      <CardTitle className="text-white">{partner.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {partner.description && (
+                        <p className="text-sm text-[#B3B3B3] mb-2 line-clamp-2">{partner.description}</p>
+                      )}
+                      {partner.website_url && (
+                        <a 
+                          href={partner.website_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-[#D4AF37] hover:underline mb-4 block truncate"
+                        >
+                          {partner.website_url}
+                        </a>
+                      )}
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 mt-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs w-fit ${
+                            partner.active ? "bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37]" : "bg-[#1A1A1A] text-[#B3B3B3] border border-[#1A1A1A]"
+                          }`}
+                        >
+                          {partner.active ? "Ativo" : "Inativo"}
+                        </span>
+                        <div className="flex space-x-2 justify-end sm:justify-start">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingItem(partner)
+                              setPartnerModalOpen(true)
+                            }}
+                            className="h-8 sm:h-9 border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]"
+                          >
+                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => handleDeleteItem(partner.id, "partner")} className="h-8 sm:h-9 border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]">
                             <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         </div>
@@ -1574,6 +1979,26 @@ export function AdminDashboard() {
         editData={editingItem}
       />
 
+      <PartnerModal
+        isOpen={partnerModalOpen}
+        onClose={() => {
+          setPartnerModalOpen(false)
+          setEditingItem(null)
+        }}
+        onSave={handleSavePartner}
+        editData={editingItem}
+      />
+
+      <FounderModal
+        isOpen={founderModalOpen}
+        onClose={() => {
+          setFounderModalOpen(false)
+          setEditingItem(null)
+        }}
+        onSave={handleSaveFounder}
+        editData={editingItem}
+      />
+
       <MessageModal
         isOpen={messageModalOpen}
         onClose={() => {
@@ -1589,5 +2014,117 @@ export function AdminDashboard() {
         onSave={handleChangePassword}
       />
     </div>
+  )
+}
+
+// Componente para card de instrutor arrastável
+function SortableInstructorCard({ 
+  instructor, 
+  onEdit, 
+  onDelete 
+}: { 
+  instructor: any
+  onEdit: (instructor: any) => void
+  onDelete: (id: string) => void
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: instructor.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : 1,
+  }
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={`bg-[#0A0A0A] border-[#1A1A1A] ${isDragging ? "shadow-2xl ring-2 ring-[#D4AF37]" : ""}`}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex items-start gap-2">
+          {/* Handle para arrastar */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 -ml-2 -mt-1 text-[#666] hover:text-[#D4AF37] transition-colors touch-none"
+          >
+            <GripVertical className="h-5 w-5" />
+          </div>
+          
+          <div className="flex-1 text-center">
+            {instructor.photo_url && (
+              <div className="relative w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-2 border-[#D4AF37] bg-[#1A1A1A]">
+                <img
+                  src={instructor.photo_url}
+                  alt={instructor.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.style.display = "none"
+                  }}
+                />
+              </div>
+            )}
+            <CardTitle className="text-white text-sm">{instructor.name}</CardTitle>
+            <CardDescription className="text-[#D4AF37] text-xs">{instructor.title}</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {instructor.bio && (
+          <p className="text-xs text-[#B3B3B3] mb-3 line-clamp-2">{instructor.bio}</p>
+        )}
+        {instructor.specialties && Array.isArray(instructor.specialties) && instructor.specialties.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {instructor.specialties.slice(0, 2).map((specialty: string, idx: number) => (
+              <span key={idx} className="bg-[#1A1A1A] text-[#B3B3B3] text-[10px] px-1.5 py-0.5 rounded-full">
+                {specialty}
+              </span>
+            ))}
+            {instructor.specialties.length > 2 && (
+              <span className="bg-[#1A1A1A] text-[#B3B3B3] text-[10px] px-1.5 py-0.5 rounded-full">
+                +{instructor.specialties.length - 2}
+              </span>
+            )}
+          </div>
+        )}
+        <div className="flex justify-between items-center pt-2 border-t border-[#1A1A1A]">
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] ${
+              instructor.active ? "bg-green-900/50 text-green-400" : "bg-red-900/50 text-red-400"
+            }`}
+          >
+            {instructor.active ? "Ativo" : "Inativo"}
+          </span>
+          <div className="flex space-x-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onEdit(instructor)}
+              className="h-7 w-7 p-0 text-[#B3B3B3] hover:text-[#D4AF37] hover:bg-[#1A1A1A]"
+            >
+              <Edit className="h-3.5 w-3.5" />
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => onDelete(instructor.id)} 
+              className="h-7 w-7 p-0 text-[#B3B3B3] hover:text-red-400 hover:bg-[#1A1A1A]"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

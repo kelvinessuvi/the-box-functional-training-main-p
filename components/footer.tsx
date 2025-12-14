@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
+import { useTranslation } from "@/contexts/language-context"
 
 interface FooterSettings {
   email: string
@@ -17,6 +18,7 @@ interface FooterSettings {
 
 export function Footer() {
   const pathname = usePathname()
+  const { t, language } = useTranslation()
   
   // Ocultar footer nas páginas administrativas
   if (pathname && pathname.startsWith("/admin")) {
@@ -27,7 +29,9 @@ export function Footer() {
     phone: "+244 923 525 886",
     location: "Luanda e Lisboa",
     companyName: "THE BOX Functional Training",
-    description: "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal.",
+    description: language === "pt" 
+      ? "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal."
+      : "The System is Brutal. Martial Arts academy focused on Jiu-Jitsu, offering high-quality training and personal development in Angola and Portugal.",
   })
 
   // Carregar configurações da API
@@ -47,7 +51,9 @@ export function Footer() {
             phone: data.phone || "+244 923 525 886",
             location: data.location || "Luanda e Lisboa",
             companyName: data.companyName || "THE BOX Functional Training",
-            description: data.description || "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal.",
+            description: data.description || (language === "pt" 
+              ? "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal."
+              : "The System is Brutal. Martial Arts academy focused on Jiu-Jitsu, offering high-quality training and personal development in Angola and Portugal."),
           })
         }
       } catch (error) {
@@ -73,12 +79,14 @@ export function Footer() {
               className="h-12 w-auto"
             />
             <p className="text-[#B3B3B3] text-sm">
-              {settings.description || "Aqui o Sistema é Bruto. Academia de Artes Marciais com foco em Jiu-Jitsu, oferecendo treinos de alta qualidade e desenvolvimento pessoal em Angola e Portugal."}
+              {settings.description}
             </p>
-            <p className="text-[#D4AF37] text-sm font-semibold uppercase">"Aqui o Sistema é Bruto"</p>
+            <p className="text-[#D4AF37] text-sm font-semibold uppercase">
+              {language === "pt" ? '"Aqui o Sistema é Bruto"' : '"The System is Brutal"'}
+            </p>
 
             <div>
-              <h4 className="font-semibold text-white mb-3">Siga-nos</h4>
+              <h4 className="font-semibold text-white mb-3">{t.footer.followUs}</h4>
               <div className="flex space-x-3">
                 <a
                   href="#"
@@ -104,41 +112,43 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-lg mb-4 text-white">Links Rápidos</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">
+              {language === "pt" ? "Links Rápidos" : "Quick Links"}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link href="#home" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Início
+                  {t.nav.home}
                 </Link>
               </li>
               <li>
                 <Link href="#about" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Sobre Nós
+                  {t.nav.about}
                 </Link>
               </li>
               <li>
                 <Link href="#modalities" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Modalidades
+                  {t.nav.modalities}
                 </Link>
               </li>
               <li>
                 <Link href="#instructors" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Instrutores
+                  {t.nav.instructors}
                 </Link>
               </li>
               <li>
                 <Link href="#branches" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Filiais
+                  {t.nav.branches}
                 </Link>
               </li>
               <li>
                 <Link href="#gallery" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Galeria
+                  {t.nav.gallery}
                 </Link>
               </li>
               <li>
                 <Link href="#contact" className="text-[#B3B3B3] hover:text-[#D4AF37] transition-colors">
-                  Contacto
+                  {t.nav.contact}
                 </Link>
               </li>
             </ul>
@@ -146,26 +156,36 @@ export function Footer() {
 
           {/* About */}
           <div>
-            <h3 className="font-semibold text-lg mb-4 text-white">Sobre a THE BOX</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">
+              {language === "pt" ? "Sobre a THE BOX" : "About THE BOX"}
+            </h3>
             <ul className="space-y-2">
               <li>
-                <span className="text-[#B3B3B3]">Fundada em 2021</span>
+                <span className="text-[#B3B3B3]">
+                  {language === "pt" ? "Fundada em 2021" : "Founded in 2021"}
+                </span>
               </li>
               <li>
-                <span className="text-[#B3B3B3]">Associada à GF Team Angola</span>
+                <span className="text-[#B3B3B3]">
+                  {language === "pt" ? "Associada à GF Team Angola" : "Associated with GF Team Angola"}
+                </span>
               </li>
               <li>
-                <span className="text-[#B3B3B3]">4 Filiais em Angola e Portugal</span>
+                <span className="text-[#B3B3B3]">
+                  {language === "pt" ? "4 Filiais em Angola e Portugal" : "4 Locations in Angola and Portugal"}
+                </span>
               </li>
               <li>
-                <span className="text-[#B3B3B3]">Jiu-Jitsu para todos</span>
+                <span className="text-[#B3B3B3]">
+                  {language === "pt" ? "Jiu-Jitsu para todos" : "Jiu-Jitsu for everyone"}
+                </span>
               </li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold text-lg mb-4 text-white">Contacto</h3>
+            <h3 className="font-semibold text-lg mb-4 text-white">{t.nav.contact}</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-[#D4AF37]" />
@@ -182,7 +202,7 @@ export function Footer() {
             </div>
 
             <Button asChild className="mt-4 bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold rounded-full">
-              <Link href="#contact">Contactar</Link>
+              <Link href="#contact">{t.nav.contactBtn}</Link>
             </Button>
           </div>
         </div>
@@ -191,25 +211,33 @@ export function Footer() {
         <div className="border-t border-[#1A1A1A] mt-8 pt-8">
           <div className="grid md:grid-cols-3 gap-4 items-center text-sm">
             <div>
-              <h4 className="font-semibold text-white mb-1">Fundador</h4>
-              <p className="text-[#B3B3B3]">Mário Stefan Pitagrós de Melo Araújo</p>
+              <h4 className="font-semibold text-white mb-1">
+                {language === "pt" ? "Fundadores" : "Founders"}
+              </h4>
+              <p className="text-[#B3B3B3]">Mário Stefan & Wilson Inocêncio</p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Associação</h4>
+              <h4 className="font-semibold text-white mb-1">
+                {language === "pt" ? "Associação" : "Association"}
+              </h4>
               <p className="text-[#B3B3B3]">GF Team Angola</p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Expansão</h4>
-              <p className="text-[#B3B3B3]">Angola e Portugal</p>
+              <h4 className="font-semibold text-white mb-1">
+                {language === "pt" ? "Expansão" : "Expansion"}
+              </h4>
+              <p className="text-[#B3B3B3]">Angola & Portugal</p>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-[#1A1A1A]">
             <p className="text-[#B3B3B3] text-sm">
-              © 2025 THE BOX Functional Training. Todos os direitos reservados.
+              © 2025 THE BOX Functional Training. {t.footer.rights}.
             </p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
-              <p className="text-[#B3B3B3] text-sm"> Feito por Veto de Araújo </p>
+              <p className="text-[#B3B3B3] text-sm"> 
+                {language === "pt" ? "Feito por" : "Made by"} Veto de Araújo 
+              </p>
               <Button variant="ghost" size="sm" asChild className="text-[#B3B3B3] hover:text-[#D4AF37]">
                 <Link href="/admin">Admin</Link>
               </Button>
