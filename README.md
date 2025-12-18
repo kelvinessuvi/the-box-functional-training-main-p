@@ -1,6 +1,5 @@
-# Super Beast - Fit Em 14 Semanas
 
-Website oficial da Super Beast, plataforma de team building através de fitness, entretenimento e desenvolvimento pessoal em Angola.
+The Box site official
 
 ## 🚀 Tecnologias
 
@@ -99,4 +98,4 @@ Este projeto é privado e proprietário da Super Beast.
 
 ---
 
-**Desenvolvido com ❤️ em Angola**
+
