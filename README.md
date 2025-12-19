@@ -1,5 +1,6 @@
+# THE BOX Functional Training
 
-The Box site official
+Site oficial da academia THE BOX - "Aqui o Sistema é Bruto"
 
 ## 🚀 Tecnologias
 
@@ -20,8 +21,8 @@ The Box site official
 
 1. **Clone o repositório:**
 ```bash
-git clone https://github.com/SuperKilson/Super-Beast-Website-final.git
-cd Super-Beast-Website-final
+git clone https://github.com/kelvinessuvi/the-box-functional-training-main-p.git
+cd the-box-functional-training-main-p
 ```
 
 2. **Instale as dependências:**
@@ -94,8 +95,7 @@ Consulte [DEPLOY.md](./DEPLOY.md) para soluções de problemas comuns.
 
 ## 📄 Licença
 
-Este projeto é privado e proprietário da Super Beast.
+Este projeto é privado e proprietário da THE BOX Functional Training.
 
 ---
-
 

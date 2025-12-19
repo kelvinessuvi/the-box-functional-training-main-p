@@ -18,13 +18,12 @@ export const metadata: Metadata = {
   generator: 'v0.dev',
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png' },
-      { url: '/images/the-box-logo.svg', type: 'image/svg+xml' },
+      { url: '/images/logo.png', type: 'image/png' },
     ],
     apple: [
-      { url: '/favicon.png', type: 'image/png' },
+      { url: '/images/logo.png', type: 'image/png' },
     ],
-    shortcut: '/favicon.png',
+    shortcut: '/images/logo.png',
   },
 }
 

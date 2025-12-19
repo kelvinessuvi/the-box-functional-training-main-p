@@ -15,7 +15,7 @@ const COOKIE_NAME = "admin-token"
  * Use env vars if set; otherwise provide dev-friendly defaults so preview doesn't block.
  */
 export function getAdminEnvCreds() {
-  const email = process.env.ADMIN_EMAIL || "admin@superbeast.com"
+  const email = process.env.ADMIN_EMAIL || "geral@theboxft.com"
   const password = process.env.ADMIN_PASSWORD || "admin123"
   return { email, password }
 }
