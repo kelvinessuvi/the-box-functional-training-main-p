@@ -4,9 +4,9 @@ import { getAuthenticatedAdmin } from "@/lib/auth/auth-utils"
 
 // Função para filtrar URLs externas problemáticas
 function filterImageUrl(url: string): string {
-  if (!url) return "/placeholder.svg?height=300&width=300&text=Super+Beast"
+  if (!url) return "/placeholder.svg?height=300&width=300&text=THE+BOX"
   if (url.includes("images.unsplash.com") || url.includes("unsplash.com")) {
-    return "/placeholder.svg?height=300&width=300&text=Super+Beast"
+    return "/placeholder.svg?height=300&width=300&text=THE+BOX"
   }
   // Verificar se é uma URL externa que não seja do próprio domínio
   if (url.startsWith("http")) {
@@ -15,7 +15,7 @@ function filterImageUrl(url: string): string {
       return url
     }
     // Para outras URLs externas, usar placeholder
-    return "/placeholder.svg?height=300&width=300&text=Super+Beast"
+    return "/placeholder.svg?height=300&width=300&text=THE+BOX"
   }
   return url
 }

@@ -74,7 +74,7 @@ export function Branches() {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
             {branches.map((branch) => (
-              <Card key={branch.id} className="bg-[#0A0A0A] border-[#1A1A1A] hover:border-[#D4AF37] transition-all">
+              <Card key={branch.id} className="bg-[#0A0A0A] border-[#1A1A1A]">
                 <CardContent className="p-4">
                   <div className="flex items-center mb-3">
                     <div className="w-9 h-9 bg-[#D4AF37] rounded-lg flex items-center justify-center mr-3 flex-shrink-0">

@@ -1,4 +1,4 @@
-# 🚀 Guia de Deploy - Super Beast Website
+# 🚀 Guia de Deploy - THE BOX Functional Training Website
 
 Este guia explica como hospedar o projeto em produção.
 
@@ -24,7 +24,7 @@ A Vercel é a plataforma recomendada para projetos Next.js.
 1. Acesse [vercel.com](https://vercel.com)
 2. Faça login com GitHub
 3. Clique em **"Add New Project"**
-4. Importe seu repositório: `SuperKilson/Super-Beast-Website-final`
+4. Importe seu repositório: `kelvinessuvi/the-box-functional-training-main-p`
 5. Escolha a branch `main`
 
 #### Passo 2: Configurar Variáveis de Ambiente
@@ -36,7 +36,7 @@ SUPABASE_URL=https://seu-projeto.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key
 NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_anon_key
-ADMIN_EMAIL=admin@superbeast.com
+ADMIN_EMAIL=geral@theboxft.com
 ADMIN_PASSWORD=senha_segura_aqui
 JWT_SECRET=sua_chave_secreta_jwt
 ```
@@ -120,7 +120,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_anon_key
 
 # Admin
-ADMIN_EMAIL=admin@superbeast.com
+ADMIN_EMAIL=geral@theboxft.com
 ADMIN_PASSWORD=senha_segura
 JWT_SECRET=sua_chave_secreta_jwt
 ```

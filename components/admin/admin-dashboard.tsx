@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+// Tabs removed - using sidebar navigation instead
 import { BarChart3, MessageSquare, ImageIcon, Package, LogOut, Plus, Edit, Trash2, Eye, Lock, RefreshCw, Users, MapPin, Handshake, GripVertical, Crown } from "lucide-react"
 import Link from "next/link"
+import { AdminSidebar } from "./admin-sidebar"
 import { GalleryModal } from "./gallery-modal"
 import { PlanModal } from "./plan-modal"
 import { MessageModal } from "./message-modal"
@@ -949,59 +950,46 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black flex">
+      {/* Sidebar */}
+      <AdminSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onLogout={handleLogout}
+        onRefresh={handleManualRefresh}
+        isRefreshing={directLoading}
+        unreadMessages={directStats.unreadMessages}
+      />
+
+      {/* Main Content */}
+      <main className="flex-1 min-h-screen overflow-auto">
       {/* Header */}
-      <header className="bg-[#0A0A0A] border-b border-[#1A1A1A]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
-          <div className="flex justify-between items-center py-3 sm:py-4">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <img src="/images/the-box-logo.svg" alt="THE BOX Functional Training" className="h-12 sm:h-16 md:h-20 w-auto" />
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Painel Administrativo</h1>
+        <header className="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-[#1A1A1A]">
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3 pl-12 lg:pl-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-white">
+                {activeTab === "overview" && "Visão Geral"}
+                {activeTab === "gallery" && "Galeria"}
+                {activeTab === "modalities" && "Modalidades"}
+                {activeTab === "instructors" && "Instrutores"}
+                {activeTab === "branches" && "Filiais"}
+                {activeTab === "partners" && "Parceiros"}
+                {activeTab === "messages" && "Mensagens"}
+                {activeTab === "users" && "Usuários"}
+                {activeTab === "settings" && "Configurações"}
+              </h1>
             </div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <div className="hidden sm:flex items-center gap-2 text-sm text-[#D4AF37]">
                 <div className="w-2 h-2 bg-[#D4AF37] rounded-full animate-pulse"></div>
                 <span>Tempo Real</span>
-              </div>
-              <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm border-[#1A1A1A] text-white hover:border-[#D4AF37] hover:text-[#D4AF37]">
-                <Link href="/">Ver Site</Link>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleManualRefresh}
-                disabled={directLoading}
-                title="Atualizar dados"
-                className="hover:bg-[#1A1A1A] text-white h-8 w-8 sm:h-10 sm:w-10"
-              >
-                <RefreshCw className={`h-4 w-4 ${directLoading ? 'animate-spin' : ''}`} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="hover:bg-[#1A1A1A] text-white h-8 w-8 sm:h-10 sm:w-10">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-4 sm:py-6 md:py-8">
-        {/* Banner de Demo Mode */}
-        {/* Removed demo mode banner */}
-
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-1 sm:gap-2 h-auto bg-[#0A0A0A] border border-[#1A1A1A] overflow-x-auto">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Visão Geral</TabsTrigger>
-            <TabsTrigger value="gallery" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Galeria</TabsTrigger>
-            <TabsTrigger value="modalities" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Modalidades</TabsTrigger>
-            <TabsTrigger value="instructors" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Instrutores</TabsTrigger>
-            <TabsTrigger value="branches" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Filiais</TabsTrigger>
-            <TabsTrigger value="partners" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Parceiros</TabsTrigger>
-            <TabsTrigger value="messages" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Mensagens</TabsTrigger>
-            <TabsTrigger value="users" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Usuários</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm py-2 px-2 sm:px-3 md:px-4 min-w-0 data-[state=active]:bg-[#1A1A1A] data-[state=active]:text-[#D4AF37] text-[#B3B3B3] hover:text-white">Configurações</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
+          {/* Overview Content */}
+          {activeTab === "overview" && (
+            <div className="space-y-4 sm:space-y-6">
             {/* Debug: Mostrar valores atuais dos estados - APENAS EM DESENVOLVIMENTO */}
             {shouldShowDebug() && isMounted && (
               <div className="bg-[#0A0A0A] border-t border-r border-b border-[#1A1A1A] p-4 rounded-lg text-xs font-mono border-l-4 border-l-[#D4AF37]">
@@ -1209,9 +1197,12 @@ export function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="gallery" className="space-y-4 sm:space-y-6">
+          {/* Gallery Content */}
+          {activeTab === "gallery" && (
+            <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
               <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão da Galeria</h2>
               <Button
@@ -1336,9 +1327,12 @@ export function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="modalities" className="space-y-4 sm:space-y-6">
+          {/* Modalities Content */}
+          {activeTab === "modalities" && (
+            <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
               <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão de Modalidades</h2>
               <Button
@@ -1396,9 +1390,12 @@ export function AdminDashboard() {
                 ))
               )}
             </div>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="instructors" className="space-y-4 sm:space-y-6">
+          {/* Instructors Content */}
+          {activeTab === "instructors" && (
+            <div className="space-y-4 sm:space-y-6">
             {/* Seção de Fundadores */}
             <Card className="bg-[#0A0A0A] border-[#1A1A1A]">
               <CardHeader>
@@ -1548,9 +1545,12 @@ export function AdminDashboard() {
                 </SortableContext>
               </DndContext>
             )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="branches" className="space-y-4 sm:space-y-6">
+          {/* Branches Content */}
+          {activeTab === "branches" && (
+            <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
               <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão de Filiais</h2>
               <Button
@@ -1642,9 +1642,12 @@ export function AdminDashboard() {
                 ))
               )}
             </div>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="partners" className="space-y-4 sm:space-y-6">
+          {/* Partners Content */}
+          {activeTab === "partners" && (
+            <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
               <h2 className="text-xl sm:text-2xl font-bold text-white">Gestão de Parceiros</h2>
               <Button
@@ -1741,9 +1744,12 @@ export function AdminDashboard() {
                 ))
               )}
             </div>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="messages" className="space-y-4 sm:space-y-6">
+          {/* Messages Content */}
+          {activeTab === "messages" && (
+            <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
               <h2 className="text-xl sm:text-2xl font-bold text-white">Mensagens Recebidas</h2>
               <div className="w-full sm:w-auto">
@@ -1926,17 +1932,24 @@ export function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="settings" className="space-y-6">
+          {/* Settings Content */}
+          {activeTab === "settings" && (
+            <div className="space-y-6">
             <SettingsTab />
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="users" className="space-y-6">
+          {/* Users Content */}
+          {activeTab === "users" && (
+            <div className="space-y-6">
             <UserManagement />
-          </TabsContent>
-        </Tabs>
       </div>
+          )}
+        </div>
+      </main>
 
       {/* Modals */}
       <GalleryModal

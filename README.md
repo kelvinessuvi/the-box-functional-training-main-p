@@ -1,6 +1,6 @@
-# Super Beast - Fit Em 14 Semanas
+# THE BOX Functional Training
 
-Website oficial da Super Beast, plataforma de team building através de fitness, entretenimento e desenvolvimento pessoal em Angola.
+Site oficial da academia THE BOX - "Aqui o Sistema é Bruto"
 
 ## 🚀 Tecnologias
 
@@ -21,8 +21,8 @@ Website oficial da Super Beast, plataforma de team building através de fitness,
 
 1. **Clone o repositório:**
 ```bash
-git clone https://github.com/SuperKilson/Super-Beast-Website-final.git
-cd Super-Beast-Website-final
+git clone https://github.com/kelvinessuvi/the-box-functional-training-main-p.git
+cd the-box-functional-training-main-p
 ```
 
 2. **Instale as dependências:**
@@ -95,8 +95,7 @@ Consulte [DEPLOY.md](./DEPLOY.md) para soluções de problemas comuns.
 
 ## 📄 Licença
 
-Este projeto é privado e proprietário da Super Beast.
+Este projeto é privado e proprietário da THE BOX Functional Training.
 
 ---
 
-**Desenvolvido com ❤️ em Angola**

@@ -48,7 +48,7 @@ export function UserManagement() {
         const mockUsers: User[] = [
           {
             id: '1',
-            email: 'admin@superbeast.com',
+            email: 'geral@theboxft.com',
             role: 'super_admin',
             is_active: true,
             created_at: '2024-01-01T00:00:00Z',

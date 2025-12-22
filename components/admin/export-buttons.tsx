@@ -88,7 +88,7 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       const link = document.createElement("a")
       const url = URL.createObjectURL(blob)
       link.setAttribute("href", url)
-      link.setAttribute("download", `SuperBeast_Mensagens_${new Date().toISOString().split('T')[0]}.csv`)
+      link.setAttribute("download", `TheBox_Mensagens_${new Date().toISOString().split('T')[0]}.csv`)
       link.style.visibility = "hidden"
       document.body.appendChild(link)
       link.click()
@@ -122,14 +122,14 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       const contentWidth = pageWidth - (margin * 2)
 
       // Cabeçalho com logotipo e título
-      doc.setFillColor(220, 38, 38) // Cor vermelha do Super Beast
+      doc.setFillColor(212, 175, 55) // Cor dourada do THE BOX
       doc.rect(0, 0, pageWidth, 40, 'F')
       
       // Título principal
-      doc.setTextColor(255, 255, 255)
+      doc.setTextColor(0, 0, 0)
       doc.setFontSize(24)
       doc.setFont("helvetica", "bold")
-      doc.text("SUPER BEAST", pageWidth / 2, 18, { align: "center" })
+      doc.text("THE BOX FUNCTIONAL TRAINING", pageWidth / 2, 18, { align: "center" })
       
       // Subtítulo
       doc.setFontSize(14)
@@ -143,9 +143,9 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       // Informações da empresa
       doc.setFontSize(12)
       doc.setFont("helvetica", "normal")
-      doc.text("Transformando equipas através de fitness, entretenimento e desenvolvimento pessoal", margin, yPosition, { align: "left" })
+      doc.text("Academia de Artes Marciais - Aqui o Sistema é Bruto", margin, yPosition, { align: "left" })
       yPosition += lineHeight
-      doc.text("A experiência corporativa mais inovadora de Angola", margin, yPosition, { align: "left" })
+      doc.text("Angola e Portugal - GF Team", margin, yPosition, { align: "left" })
       yPosition += lineHeight * 2
 
       // Data de geração
@@ -201,12 +201,12 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
           yPosition = 20
           
           // Adicionar cabeçalho na nova página
-          doc.setFillColor(220, 38, 38)
+          doc.setFillColor(212, 175, 55)
           doc.rect(0, 0, pageWidth, 20, 'F')
-          doc.setTextColor(255, 255, 255)
+          doc.setTextColor(0, 0, 0)
           doc.setFontSize(12)
           doc.setFont("helvetica", "bold")
-          doc.text("SUPER BEAST - Continuação", pageWidth / 2, 12, { align: "center" })
+          doc.text("THE BOX - Continuação", pageWidth / 2, 12, { align: "center" })
           doc.setTextColor(0, 0, 0)
           yPosition = 30
         }
@@ -268,12 +268,12 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       
       doc.setFontSize(8)
       doc.setFont("helvetica", "normal")
-      doc.text("© 2025 Super Beast - Fit Em 14 Semanas. Todos os direitos reservados.", pageWidth / 2, yPosition, { align: "center" })
+      doc.text("© 2025 THE BOX Functional Training. Todos os direitos reservados.", pageWidth / 2, yPosition, { align: "center" })
       yPosition += lineHeight
-      doc.text("Transformando equipas através de fitness, entretenimento e desenvolvimento pessoal", pageWidth / 2, yPosition, { align: "center" })
+      doc.text("Academia de Artes Marciais - Aqui o Sistema é Bruto", pageWidth / 2, yPosition, { align: "center" })
 
       // Salvar PDF
-      doc.save(`SuperBeast_Mensagens_${new Date().toISOString().split('T')[0]}.pdf`)
+      doc.save(`TheBox_Mensagens_${new Date().toISOString().split('T')[0]}.pdf`)
       toast.success("PDF exportado com sucesso!")
     } catch (error) {
       console.error("Erro ao exportar PDF:", error)

@@ -1,5 +1,5 @@
 -- =====================================================
--- SCRIPT COMPLETO PARA CONFIGURAÇÃO DO SUPER BEAST
+-- SCRIPT COMPLETO PARA CONFIGURAÇÃO DO THE BOX
 -- Execute este script no SQL Editor do Supabase
 -- =====================================================
 

@@ -143,9 +143,8 @@ export default function About() {
                 return (
                   <div 
                     key={index}
-                    className="group relative bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3 text-center hover:border-[#D4AF37] transition-all overflow-hidden"
+                    className="group relative bg-[#0A0A0A] border border-[#1A1A1A] rounded-lg p-3 text-center overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#D4AF37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-[#D4AF37] mx-auto mb-1.5" />
                     <div className="text-lg sm:text-xl font-bold text-white">{stat.value}</div>
                     <div className="text-[10px] sm:text-xs text-[#888]">{stat.label}</div>
@@ -256,12 +255,12 @@ export default function About() {
               return (
                 <div 
                   key={index}
-                  className="group flex items-center gap-1.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-2.5 py-1.5 sm:px-3 sm:py-1.5 hover:border-[#D4AF37]/50 hover:bg-[#111] transition-all cursor-default"
+                  className="group flex items-center gap-1.5 bg-[#0A0A0A] border border-[#1A1A1A] rounded-full px-2.5 py-1.5 sm:px-3 sm:py-1.5 cursor-default"
                 >
-                  <div className="w-6 h-6 bg-gradient-to-br from-[#D4AF37] to-[#B8960C] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-6 h-6 bg-gradient-to-br from-[#D4AF37] to-[#B8960C] rounded-full flex items-center justify-center">
                     <Icon className="w-3 h-3 text-black" />
                   </div>
-                  <span className="text-[11px] sm:text-xs font-medium text-[#ccc] group-hover:text-white transition-colors">{value.title}</span>
+                  <span className="text-[11px] sm:text-xs font-medium text-[#ccc]">{value.title}</span>
                 </div>
               )
             })}

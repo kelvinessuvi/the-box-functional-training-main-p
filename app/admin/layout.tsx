@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Painel Administrativo - Super Beast",
+  title: "Painel Administrativo - THE BOX Functional Training",
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
