@@ -111,8 +111,7 @@ export default function About() {
                 {language === "pt" ? (
                   <>
                     <p className="text-[#B3B3B3] text-sm sm:text-base leading-relaxed mb-3">
-                      A <strong className="text-white">THE BOX</strong>, fundada em <strong className="text-[#D4AF37]">2021</strong> e 
-                      associada à <strong className="text-white">GF Team Angola</strong>, nasceu com a missão de elevar o nível do treino 
+                      A <strong className="text-white">THE BOX</strong>, fundada em <strong className="text-[#D4AF37]">2021</strong>, nasceu com a missão de elevar o nível do treino 
                       e a profissionalização dos atletas em Angola e Portugal.
                     </p>
                     <p className="text-[#B3B3B3] text-sm sm:text-base leading-relaxed">
@@ -123,8 +122,7 @@ export default function About() {
                 ) : (
                   <>
                     <p className="text-[#B3B3B3] text-sm sm:text-base leading-relaxed mb-3">
-                      <strong className="text-white">THE BOX</strong>, founded in <strong className="text-[#D4AF37]">2021</strong> and 
-                      associated with <strong className="text-white">GF Team Angola</strong>, was born with the mission of elevating 
+                      <strong className="text-white">THE BOX</strong>, founded in <strong className="text-[#D4AF37]">2021</strong>, was born with the mission of elevating 
                       the level of training and professionalization of athletes in Angola and Portugal.
                     </p>
                     <p className="text-[#B3B3B3] text-sm sm:text-base leading-relaxed">

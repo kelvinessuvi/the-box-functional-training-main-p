@@ -167,11 +167,6 @@ export function Footer() {
               </li>
               <li>
                 <span className="text-[#B3B3B3]">
-                  {language === "pt" ? "Associada à GF Team Angola" : "Associated with GF Team Angola"}
-                </span>
-              </li>
-              <li>
-                <span className="text-[#B3B3B3]">
                   {language === "pt" ? "4 Filiais em Angola e Portugal" : "4 Locations in Angola and Portugal"}
                 </span>
               </li>
@@ -215,12 +210,6 @@ export function Footer() {
                 {language === "pt" ? "Fundadores" : "Founders"}
               </h4>
               <p className="text-[#B3B3B3]">Mário Stefan & Wilson Inocêncio</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-1">
-                {language === "pt" ? "Associação" : "Association"}
-              </h4>
-              <p className="text-[#B3B3B3]">GF Team Angola</p>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-1">

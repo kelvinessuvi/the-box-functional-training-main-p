@@ -145,7 +145,7 @@ export default function ExportButtons({ messages }: ExportButtonsProps) {
       doc.setFont("helvetica", "normal")
       doc.text("Academia de Artes Marciais - Aqui o Sistema é Bruto", margin, yPosition, { align: "left" })
       yPosition += lineHeight
-      doc.text("Angola e Portugal - GF Team", margin, yPosition, { align: "left" })
+      doc.text("Angola e Portugal", margin, yPosition, { align: "left" })
       yPosition += lineHeight * 2
 
       // Data de geração
