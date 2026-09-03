@@ -9,6 +9,7 @@ export const translations = {
       modalities: "Modalidades",
       instructors: "Instrutores",
       branches: "Filiais",
+      store: "Loja",
       gallery: "Galeria",
       contact: "Contacto",
       adminPanel: "Painel Admin",
@@ -161,6 +162,7 @@ export const translations = {
       modalities: "Modalities",
       instructors: "Instructors",
       branches: "Locations",
+      store: "Store",
       gallery: "Gallery",
       contact: "Contact",
       adminPanel: "Admin Panel",
@@ -307,4 +309,3 @@ export const translations = {
 } as const
 
 export type TranslationKeys = typeof translations.pt
-

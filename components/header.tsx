@@ -18,6 +18,7 @@ import {
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+
   const { isAdmin, isLoading } = useAuth()
   const pathname = usePathname()
   const { t, language, setLanguage } = useTranslation()
@@ -26,90 +27,112 @@ export function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
-    
+
     window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
   }, [])
 
   const navigation = [
-    { name: t.nav.home, href: "#home" },
-    { name: t.nav.about, href: "#about" },
-    { name: t.nav.modalities, href: "#modalities" },
-    { name: t.nav.instructors, href: "#instructors" },
-    { name: t.nav.branches, href: "#branches" },
-    { name: t.nav.gallery, href: "#gallery" },
-    { name: t.nav.contact, href: "#contact" },
+    { name: t.nav.home, href: "/#home" },
+    { name: t.nav.about, href: "/#about" },
+    { name: t.nav.modalities, href: "/#modalities" },
+    { name: t.nav.instructors, href: "/#instructors" },
+    { name: t.nav.branches, href: "/#branches" },
+    { name: t.nav.store, href: "/loja" },
+    { name: t.nav.gallery, href: "/#gallery" },
+    { name: t.nav.contact, href: "/#contact" },
   ]
 
-  // Após usar todos os hooks, podemos decidir ocultar
+  // Ocultar Header nas páginas administrativas
   if (pathname && pathname.startsWith("/admin")) {
     return null
   }
 
   return (
-    <header 
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled 
-          ? "bg-black/80 backdrop-blur-md border-b border-[#D4AF37]/20 shadow-lg" 
+    <header
+      className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled
+          ? "bg-black/80 backdrop-blur-md border-b border-[#D4AF37]/20 shadow-lg"
           : "bg-black/95 border-b border-[#1A1A1A]"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16 sm:h-18">
-          {/* Logo - alinhado à esquerda */}
-          <Link href="/" className="flex items-center flex-shrink-0">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center sm:h-18">
+          {/* Logo */}
+          <Link href="/" className="flex flex-shrink-0 items-center">
             <Image
               src="/images/the-box-logo.svg"
               alt="THE BOX Functional Training"
               width={160}
               height={50}
-              className="h-10 sm:h-12 w-auto"
+              className="h-10 w-auto sm:h-12"
+              priority
             />
           </Link>
 
-          {/* Spacer para empurrar navegação para direita */}
-          <div className="flex-1"></div>
+          {/* Spacer */}
+          <div className="flex-1" />
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-5 mr-4">
-            {navigation.map((item) => (
-              <Link 
-                key={item.name} 
-                href={item.href} 
-                className="text-sm text-white/90 hover:text-[#D4AF37] transition-colors font-medium"
-              >
-                {item.name}
-              </Link>
-            ))}
+          <nav className="mr-4 hidden items-center space-x-5 lg:flex">
+            {navigation.map((item) => {
+              const isStoreActive =
+                item.href === "/loja" && pathname?.startsWith("/loja")
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`text-sm font-medium transition-colors ${
+                    isStoreActive
+                      ? "text-[#D4AF37]"
+                      : "text-white/90 hover:text-[#D4AF37]"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              )
+            })}
           </nav>
 
           {/* Language Selector - Desktop */}
-          <div className="hidden lg:flex items-center mr-4">
+          <div className="mr-4 hidden items-center lg:flex">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-white/90 hover:text-[#D4AF37] hover:bg-transparent gap-1.5 px-2"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 px-2 text-white/90 hover:bg-transparent hover:text-[#D4AF37]"
                 >
                   <Globe className="h-4 w-4" />
-                  <span className="text-xs font-medium uppercase">{language}</span>
+                  <span className="text-xs font-medium uppercase">
+                    {language}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="end" 
-                className="bg-[#0A0A0A] border-[#1A1A1A] min-w-[120px]"
+
+              <DropdownMenuContent
+                align="end"
+                className="min-w-[120px] border-[#1A1A1A] bg-[#0A0A0A]"
               >
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setLanguage("pt")}
-                  className={`cursor-pointer ${language === "pt" ? "text-[#D4AF37]" : "text-white"} hover:text-[#D4AF37] hover:bg-[#1A1A1A]`}
+                  className={`cursor-pointer hover:bg-[#1A1A1A] hover:text-[#D4AF37] ${
+                    language === "pt" ? "text-[#D4AF37]" : "text-white"
+                  }`}
                 >
                   <span className="mr-2">🇵🇹</span>
                   Português
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+
+                <DropdownMenuItem
                   onClick={() => setLanguage("en")}
-                  className={`cursor-pointer ${language === "en" ? "text-[#D4AF37]" : "text-white"} hover:text-[#D4AF37] hover:bg-[#1A1A1A]`}
+                  className={`cursor-pointer hover:bg-[#1A1A1A] hover:text-[#D4AF37] ${
+                    language === "en" ? "text-[#D4AF37]" : "text-white"
+                  }`}
                 >
                   <span className="mr-2">🇬🇧</span>
                   English
@@ -118,70 +141,128 @@ export function Header() {
             </DropdownMenu>
           </div>
 
-          <div className="hidden lg:flex items-center">
+          {/* Desktop CTA */}
+          <div className="hidden items-center lg:flex">
             {!isLoading && isAdmin ? (
-              <Button asChild size="sm" className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold px-5">
+              <Button
+                asChild
+                size="sm"
+                className="bg-[#D4AF37] px-5 font-semibold text-black hover:bg-[#B8941F]"
+              >
                 <Link href="/admin/dashboard">{t.nav.adminPanel}</Link>
               </Button>
             ) : (
-              <Button asChild size="sm" className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold px-5">
-                <Link href="#contact">{t.nav.contactBtn}</Link>
+              <Button
+                asChild
+                size="sm"
+                className="bg-[#D4AF37] px-5 font-semibold text-black hover:bg-[#B8941F]"
+              >
+                <Link href="/#contact">{t.nav.contactBtn}</Link>
               </Button>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="lg:hidden text-white hover:text-[#D4AF37] hover:bg-transparent ml-auto" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto text-white hover:bg-transparent hover:text-[#D4AF37] lg:hidden"
+            onClick={() => setIsMenuOpen((current) => !current)}
+            aria-label={
+              isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"
+            }
+            aria-expanded={isMenuOpen}
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </Button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-[#1A1A1A]">
+          <div className="border-t border-[#1A1A1A] py-4 lg:hidden">
             <nav className="flex flex-col space-y-3">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-white/90 hover:text-[#D4AF37] transition-colors font-medium py-1"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              
+              {navigation.map((item) => {
+                const isStoreActive =
+                  item.href === "/loja" && pathname?.startsWith("/loja")
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`py-1 font-medium transition-colors ${
+                      isStoreActive
+                        ? "text-[#D4AF37]"
+                        : "text-white/90 hover:text-[#D4AF37]"
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                )
+              })}
+
               {/* Language Selector - Mobile */}
-              <div className="flex items-center gap-2 py-2 border-t border-[#1A1A1A] mt-2 pt-4">
+              <div className="mt-2 flex items-center gap-2 border-t border-[#1A1A1A] pt-4">
                 <Globe className="h-4 w-4 text-white/70" />
-                <span className="text-white/70 text-sm">Idioma:</span>
+
+                <span className="text-sm text-white/70">
+                  {language === "pt" ? "Idioma:" : "Language:"}
+                </span>
+
                 <button
+                  type="button"
                   onClick={() => setLanguage("pt")}
-                  className={`px-2 py-1 text-sm rounded ${language === "pt" ? "bg-[#D4AF37] text-black font-semibold" : "text-white/70 hover:text-white"}`}
+                  className={`rounded px-2 py-1 text-sm ${
+                    language === "pt"
+                      ? "bg-[#D4AF37] font-semibold text-black"
+                      : "text-white/70 hover:text-white"
+                  }`}
                 >
                   🇵🇹 PT
                 </button>
+
                 <button
+                  type="button"
                   onClick={() => setLanguage("en")}
-                  className={`px-2 py-1 text-sm rounded ${language === "en" ? "bg-[#D4AF37] text-black font-semibold" : "text-white/70 hover:text-white"}`}
+                  className={`rounded px-2 py-1 text-sm ${
+                    language === "en"
+                      ? "bg-[#D4AF37] font-semibold text-black"
+                      : "text-white/70 hover:text-white"
+                  }`}
                 >
                   🇬🇧 EN
                 </button>
               </div>
 
-              <div className="pt-3 flex flex-col gap-2">
+              {/* Mobile CTA */}
+              <div className="flex flex-col gap-2 pt-3">
                 {!isLoading && isAdmin ? (
-                  <Button asChild className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold" onClick={() => setIsMenuOpen(false)}>
-                    <Link href="/admin/dashboard">{t.nav.adminPanel}</Link>
+                  <Button
+                    asChild
+                    className="w-full bg-[#D4AF37] font-semibold text-black hover:bg-[#B8941F]"
+                  >
+                    <Link
+                      href="/admin/dashboard"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {t.nav.adminPanel}
+                    </Link>
                   </Button>
                 ) : (
-                  <Button asChild className="w-full bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold">
-                    <Link href="#contact">{t.nav.contactBtn}</Link>
+                  <Button
+                    asChild
+                    className="w-full bg-[#D4AF37] font-semibold text-black hover:bg-[#B8941F]"
+                  >
+                    <Link
+                      href="/#contact"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {t.nav.contactBtn}
+                    </Link>
                   </Button>
                 )}
               </div>
