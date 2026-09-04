@@ -7,6 +7,54 @@ import {
   STORE_CATEGORIES,
 } from "./constants"
 
+function requiredNonNegativeNumber(
+  message: string
+) {
+  return z.preprocess(
+    (value) => {
+      if (
+        value === null ||
+        value === undefined ||
+        value === ""
+      ) {
+        return Number.NaN
+      }
+
+      return value
+    },
+    z.coerce
+      .number()
+      .finite()
+      .min(0, message)
+  )
+}
+
+function optionalNullableNonNegativeNumber(
+  message: string
+) {
+  return z.preprocess(
+    (value) => {
+      if (
+        value === null ||
+        value === ""
+      ) {
+        return null
+      }
+
+      return value
+    },
+    z
+      .union([
+        z.null(),
+        z.coerce
+          .number()
+          .finite()
+          .min(0, message),
+      ])
+      .optional()
+  )
+}
+
 export const productCategorySchema =
   z.enum(STORE_CATEGORIES)
 
@@ -30,130 +78,200 @@ export const productReferenceSchema = z
     "Referência contém caracteres inválidos"
   )
 
-export const productVariantInputSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Nome da variante é obrigatório")
-    .max(100, "Nome da variante demasiado longo"),
+export const productVariantInputSchema =
+  z.object({
+    name: z
+      .string()
+      .trim()
+      .min(
+        1,
+        "Nome da variante é obrigatório"
+      )
+      .max(
+        100,
+        "Nome da variante demasiado longo"
+      ),
 
-  stockQuantity: z.coerce
-    .number()
-    .int("Stock deve ser um número inteiro")
-    .min(0, "Stock não pode ser negativo"),
+    stockQuantity: z.preprocess(
+      (value) => {
+        if (
+          value === null ||
+          value === undefined ||
+          value === ""
+        ) {
+          return Number.NaN
+        }
 
-  priceOverride: z
-    .union([
-      z.coerce.number().min(
-        0,
+        return value
+      },
+      z.coerce
+        .number()
+        .int(
+          "Stock deve ser um número inteiro"
+        )
+        .min(
+          0,
+          "Stock não pode ser negativo"
+        )
+    ),
+
+    priceOverride:
+      optionalNullableNonNegativeNumber(
         "Preço da variante não pode ser negativo"
       ),
-      z.null(),
-    ])
-    .optional(),
 
-  active: z.boolean().optional().default(true),
+    active: z
+      .boolean()
+      .optional()
+      .default(true),
 
-  displayOrder: z.coerce
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .default(0),
-})
+    displayOrder: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .default(0),
+  })
 
-export const productCreateSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Nome do produto é obrigatório")
-    .max(160, "Nome do produto demasiado longo"),
+export const productCreateSchema =
+  z.object({
+    name: z
+      .string()
+      .trim()
+      .min(
+        2,
+        "Nome do produto é obrigatório"
+      )
+      .max(
+        160,
+        "Nome do produto demasiado longo"
+      ),
 
-  slug: productSlugSchema,
+    slug: productSlugSchema,
 
-  reference: productReferenceSchema,
+    reference:
+      productReferenceSchema,
 
-  description: z
-    .string()
-    .trim()
-    .max(5000, "Descrição demasiado longa")
-    .optional()
-    .default(""),
+    description: z
+      .string()
+      .trim()
+      .max(
+        5000,
+        "Descrição demasiado longa"
+      )
+      .optional()
+      .default(""),
 
-  category: productCategorySchema,
+    category:
+      productCategorySchema,
 
-  price: z.coerce
-    .number()
-    .min(0, "Preço não pode ser negativo"),
+    price:
+      requiredNonNegativeNumber(
+        "Preço não pode ser negativo"
+      ),
 
-  currency: z
-    .string()
-    .trim()
-    .length(3, "Moeda deve utilizar 3 caracteres")
-    .transform((value) => value.toUpperCase())
-    .default(DEFAULT_STORE_CURRENCY),
+    currency: z
+      .string()
+      .trim()
+      .length(
+        3,
+        "Moeda deve utilizar 3 caracteres"
+      )
+      .transform((value) =>
+        value.toUpperCase()
+      )
+      .default(
+        DEFAULT_STORE_CURRENCY
+      ),
 
-  variantLabel: z
-    .union([
-      z
-        .string()
-        .trim()
-        .min(1)
-        .max(80),
-      z.null(),
-    ])
-    .optional()
-    .default(null),
+    variantLabel: z
+      .union([
+        z
+          .string()
+          .trim()
+          .min(1)
+          .max(80),
+        z.null(),
+      ])
+      .optional()
+      .default(null),
 
-  active: z.boolean().optional().default(true),
+    active: z
+      .boolean()
+      .optional()
+      .default(true),
 
-  featured: z.boolean().optional().default(false),
+    featured: z
+      .boolean()
+      .optional()
+      .default(false),
 
-  displayOrder: z.coerce
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .default(0),
+    displayOrder: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .optional()
+      .default(0),
 
-  variants: z
-    .array(productVariantInputSchema)
-    .min(
-      1,
-      "O produto deve possuir pelo menos uma variante"
-    ),
-})
-
-export const productUpdateSchema =
-  productCreateSchema.partial().extend({
     variants: z
-      .array(productVariantInputSchema)
+      .array(
+        productVariantInputSchema
+      )
       .min(
         1,
         "O produto deve possuir pelo menos uma variante"
-      )
-      .optional(),
+      ),
   })
 
+export const productUpdateSchema =
+  productCreateSchema
+    .partial()
+    .extend({
+      variants: z
+        .array(
+          productVariantInputSchema
+        )
+        .min(
+          1,
+          "O produto deve possuir pelo menos uma variante"
+        )
+        .optional(),
+    })
+
 export type ProductCreatePayload =
-  z.infer<typeof productCreateSchema>
+  z.infer<
+    typeof productCreateSchema
+  >
 
 export type ProductUpdatePayload =
-  z.infer<typeof productUpdateSchema>
+  z.infer<
+    typeof productUpdateSchema
+  >
 
 export type ProductVariantPayload =
-  z.infer<typeof productVariantInputSchema>
+  z.infer<
+    typeof productVariantInputSchema
+  >
 
 export function normalizeProductSlug(
   value: string
 ) {
   return value
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
+    .replace(
+      /[^a-z0-9]+/g,
+      "-"
+    )
+    .replace(
+      /^-+|-+$/g,
+      ""
+    )
 }
 
 export function normalizeProductReference(
@@ -168,11 +286,15 @@ export function normalizeProductReference(
 export function parseProductCreateInput(
   value: unknown
 ) {
-  return productCreateSchema.safeParse(value)
+  return productCreateSchema.safeParse(
+    value
+  )
 }
 
 export function parseProductUpdateInput(
   value: unknown
 ) {
-  return productUpdateSchema.safeParse(value)
+  return productUpdateSchema.safeParse(
+    value
+  )
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+
 import { signJWT } from "@/lib/auth/jwt"
 import { verifyPassword } from "@/lib/auth/password"
 import { getServiceClient } from "@/lib/supabase/server"
@@ -6,122 +7,181 @@ import { getServiceClient } from "@/lib/supabase/server"
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
-    const email = String(body?.email || "")
+
+    const email = String(body?.email || "").trim()
     const password = String(body?.password || "")
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Email e senha são obrigatórios" }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: "Email e senha são obrigatórios",
+        },
+        {
+          status: 400,
+        }
+      )
     }
 
-    // Criar cliente Supabase
     const supabase = getServiceClient()
+
     if (!supabase) {
-      console.error("[AUTH] Supabase não configurado")
-      return NextResponse.json({ error: "Erro de configuração do servidor" }, { status: 500 })
+      console.error(
+        "[AUTH] Supabase não configurado"
+      )
+
+      return NextResponse.json(
+        {
+          error:
+            "Erro de configuração do servidor",
+        },
+        {
+          status: 500,
+        }
+      )
     }
 
-    // Buscar usuário no banco de dados
-    console.log("[AUTH] Buscando usuário:", email)
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id, email, password_hash, role, is_active')
-      .eq('email', email)
+    console.log(
+      "[AUTH] A processar tentativa de login"
+    )
+
+    const {
+      data: user,
+      error: userError,
+    } = await supabase
+      .from("users")
+      .select(
+        "id, email, password_hash, role, is_active"
+      )
+      .eq("email", email)
       .single()
 
-    if (userError) {
-      console.error("[AUTH] Erro ao buscar usuário:", userError.message)
-      console.error("[AUTH] Código:", userError.code)
-      console.error("[AUTH] Detalhes:", JSON.stringify(userError, null, 2))
-      
-      // Mensagens de erro mais específicas
-      if (userError.code === 'PGRST116') {
-        return NextResponse.json({ 
-          error: "Usuário não encontrado. Verifique se executou o script SQL create-admin-user-direct.sql no Supabase.",
-          details: "O usuário admin ainda não foi criado no banco de dados."
-        }, { status: 401 })
-      }
-      
-      return NextResponse.json({ 
-        error: "Erro ao buscar usuário no banco de dados",
-        details: userError.message 
-      }, { status: 401 })
+    if (userError || !user) {
+      console.warn(
+        "[AUTH] Credenciais inválidas ou utilizador não encontrado"
+      )
+
+      return NextResponse.json(
+        {
+          error:
+            "Email ou senha inválidos",
+        },
+        {
+          status: 401,
+        }
+      )
     }
 
-    if (!user) {
-      console.log("[AUTH] Usuário não encontrado:", email)
-      return NextResponse.json({ 
-        error: "Usuário não encontrado. Execute o script SQL create-admin-user-direct.sql no Supabase.",
-        details: "O email fornecido não existe no banco de dados."
-      }, { status: 401 })
-    }
-
-    console.log("[AUTH] Usuário encontrado:", user.email, "Role:", user.role, "Ativo:", user.is_active)
-
-    // Verificar se o usuário está ativo
     if (!user.is_active) {
-      console.log("[AUTH] Usuário inativo:", email)
-      return NextResponse.json({ error: "Conta desativada" }, { status: 401 })
+      console.warn(
+        "[AUTH] Tentativa de login numa conta inactiva"
+      )
+
+      return NextResponse.json(
+        {
+          error: "Conta desactivada",
+        },
+        {
+          status: 401,
+        }
+      )
     }
 
-    // Verificar senha
-    console.log("[AUTH] Verificando senha...")
-    console.log("[AUTH] Hash no banco:", user.password_hash.substring(0, 20) + "...")
-    const isPasswordValid = await verifyPassword(password, user.password_hash)
-    console.log("[AUTH] Senha válida?", isPasswordValid)
-    
+    const isPasswordValid =
+      await verifyPassword(
+        password,
+        user.password_hash
+      )
+
     if (!isPasswordValid) {
-      console.log("[AUTH] Senha inválida para:", email)
-      console.log("[AUTH] Senha fornecida:", password)
-      return NextResponse.json({ 
-        error: "Senha incorreta",
-        details: "A senha fornecida não corresponde ao hash armazenado no banco de dados. Verifique se executou o script SQL corretamente."
-      }, { status: 401 })
+      console.warn(
+        "[AUTH] Credenciais inválidas"
+      )
+
+      return NextResponse.json(
+        {
+          error:
+            "Email ou senha inválidos",
+        },
+        {
+          status: 401,
+        }
+      )
     }
 
-    // Atualizar último login
-    await supabase
-      .from('users')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', user.id)
+    const { error: loginUpdateError } =
+      await supabase
+        .from("users")
+        .update({
+          last_login:
+            new Date().toISOString(),
+        })
+        .eq("id", user.id)
 
-    // Gerar JWT com informações do usuário
-    const token = await signJWT({ 
-      sub: user.id, 
-      email: user.email, 
-      role: user.role 
-    }, 60 * 60 * 24 * 7) // 7 dias
+    if (loginUpdateError) {
+      console.warn(
+        "[AUTH] Não foi possível actualizar last_login:",
+        loginUpdateError.message
+      )
+    }
 
-    console.log("[AUTH] Login bem-sucedido para:", email, "Role:", user.role)
-
-    const res = NextResponse.json({ 
-      success: true, 
-      user: {
-        id: user.id,
+    const token = await signJWT(
+      {
+        sub: user.id,
         email: user.email,
-        role: user.role
-      }
-    }, { status: 200 })
-    
-    // Configuração do cookie
-    // IMPORTANTE: httpOnly deve ser true para segurança, mas precisamos garantir que funcione
-    const cookieOptions = {
-      httpOnly: true, // Mais seguro - o JavaScript não pode acessar, mas o servidor pode ler
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax" as const,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 dias
-    }
-    
-    res.cookies.set("admin-token", token, cookieOptions)
-    
-    console.log("[AUTH] Cookie admin-token definido com sucesso")
-    console.log("[AUTH] Token gerado:", token.substring(0, 20) + "...")
-    console.log("[AUTH] Cookie options:", { ...cookieOptions, maxAge: "7 dias" })
-    
-    return res
+        role: user.role,
+      },
+      60 * 60 * 24 * 7
+    )
 
-  } catch (err) {
-    console.error("[AUTH] login error:", err)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    const response =
+      NextResponse.json(
+        {
+          success: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          },
+        },
+        {
+          status: 200,
+        }
+      )
+
+    response.cookies.set(
+      "admin-token",
+      token,
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV ===
+          "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge:
+          60 * 60 * 24 * 7,
+      }
+    )
+
+    console.log(
+      "[AUTH] Login efectuado com sucesso"
+    )
+
+    return response
+  } catch (error) {
+    console.error(
+      "[AUTH] Erro interno no login:",
+      error
+    )
+
+    return NextResponse.json(
+      {
+        error:
+          "Erro interno do servidor",
+      },
+      {
+        status: 500,
+      }
+    )
   }
 }

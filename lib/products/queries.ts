@@ -87,15 +87,20 @@ function mapVariant(
     stockQuantity: Math.max(
       0,
       Math.trunc(
-        normalizePrice(row.stock_quantity)
+        normalizePrice(
+          row.stock_quantity
+        )
       )
     ),
     priceOverride:
       row.price_override === null
         ? null
-        : normalizePrice(row.price_override),
+        : normalizePrice(
+            row.price_override
+          ),
     active: Boolean(row.active),
-    displayOrder: row.display_order ?? 0,
+    displayOrder:
+      row.display_order ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -108,9 +113,11 @@ function mapImage(
     id: row.id,
     productId: row.product_id,
     imageUrl: row.image_url,
-    storagePath: row.storage_path,
+    storagePath:
+      row.storage_path,
     altText: row.alt_text,
-    displayOrder: row.display_order ?? 0,
+    displayOrder:
+      row.display_order ?? 0,
     createdAt: row.created_at,
   }
 }
@@ -118,18 +125,24 @@ function mapImage(
 function sortVariants(
   variants: ProductVariant[]
 ) {
-  return [...variants].sort((a, b) => {
-    if (a.displayOrder !== b.displayOrder) {
-      return (
-        a.displayOrder - b.displayOrder
+  return [...variants].sort(
+    (a, b) => {
+      if (
+        a.displayOrder !==
+        b.displayOrder
+      ) {
+        return (
+          a.displayOrder -
+          b.displayOrder
+        )
+      }
+
+      return a.name.localeCompare(
+        b.name,
+        "pt"
       )
     }
-
-    return a.name.localeCompare(
-      b.name,
-      "pt"
-    )
-  })
+  )
 }
 
 function sortImages(
@@ -137,7 +150,8 @@ function sortImages(
 ) {
   return [...images].sort(
     (a, b) =>
-      a.displayOrder - b.displayOrder
+      a.displayOrder -
+      b.displayOrder
   )
 }
 
@@ -147,51 +161,76 @@ function mapProduct(
     publicOnly?: boolean
   }
 ): StoreProduct {
-  const allVariants = sortVariants(
-    (row.product_variants ?? []).map(
-      mapVariant
+  const allVariants =
+    sortVariants(
+      (
+        row.product_variants ??
+        []
+      ).map(mapVariant)
     )
-  )
 
-  const variants = options?.publicOnly
-    ? allVariants.filter(
-        (variant) => variant.active
-      )
-    : allVariants
+  const activeVariants =
+    allVariants.filter(
+      (variant) =>
+        variant.active
+    )
+
+  const stockVariants =
+    options?.publicOnly
+      ? activeVariants
+      : allVariants
+
+  const visibleVariants =
+    options?.publicOnly
+      ? row.variant_label
+        ? activeVariants
+        : []
+      : allVariants
 
   const images = sortImages(
-    (row.product_images ?? []).map(
-      mapImage
-    )
+    (
+      row.product_images ?? []
+    ).map(mapImage)
   )
 
-  const totalStock = getTotalStock(
-    variants
-  )
+  const totalStock =
+    getTotalStock(
+      stockVariants
+    )
 
   return {
     id: row.id,
     name: row.name,
     slug: row.slug,
     reference: row.reference,
-    description: row.description ?? "",
+    description:
+      row.description ?? "",
     category: row.category,
-    price: normalizePrice(row.price),
+    price:
+      normalizePrice(row.price),
     currency: row.currency,
-    variantLabel: row.variant_label,
-    active: Boolean(row.active),
-    featured: Boolean(row.featured),
-    displayOrder: row.display_order ?? 0,
+    variantLabel:
+      row.variant_label,
+    active:
+      Boolean(row.active),
+    featured:
+      Boolean(row.featured),
+    displayOrder:
+      row.display_order ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
 
-    variants,
+    variants:
+      visibleVariants,
     images,
 
     totalStock,
     availability:
-      getProductAvailability(variants),
-    primaryImage: images[0] ?? null,
+      getProductAvailability(
+        stockVariants
+      ),
+    primaryImage:
+      images[0] ?? null,
   }
 }
 
@@ -233,10 +272,13 @@ export async function getPublicProducts(
     options.limit &&
     options.limit > 0
   ) {
-    query = query.limit(options.limit)
+    query = query.limit(
+      options.limit
+    )
   }
 
-  const { data, error } = await query
+  const { data, error } =
+    await query
 
   if (error) {
     console.error(
@@ -250,8 +292,11 @@ export async function getPublicProducts(
   }
 
   return (
-    (data as ProductWithRelationsRow[] | null) ??
-    []
+    (
+      data as
+        | ProductWithRelationsRow[]
+        | null
+    ) ?? []
   ).map((row) =>
     mapProduct(row, {
       publicOnly: true,
@@ -265,12 +310,13 @@ export async function getPublicProductBySlug(
   const supabase =
     getRequiredServiceClient()
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_SELECT)
-    .eq("slug", slug)
-    .eq("active", true)
-    .maybeSingle()
+  const { data, error } =
+    await supabase
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .eq("slug", slug)
+      .eq("active", true)
+      .maybeSingle()
 
   if (error) {
     console.error(
@@ -301,15 +347,16 @@ export async function getAdminProducts(): Promise<
   const supabase =
     getRequiredServiceClient()
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_SELECT)
-    .order("display_order", {
-      ascending: true,
-    })
-    .order("created_at", {
-      ascending: false,
-    })
+  const { data, error } =
+    await supabase
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .order("display_order", {
+        ascending: true,
+      })
+      .order("created_at", {
+        ascending: false,
+      })
 
   if (error) {
     console.error(
@@ -323,9 +370,14 @@ export async function getAdminProducts(): Promise<
   }
 
   return (
-    (data as ProductWithRelationsRow[] | null) ??
-    []
-  ).map((row) => mapProduct(row))
+    (
+      data as
+        | ProductWithRelationsRow[]
+        | null
+    ) ?? []
+  ).map((row) =>
+    mapProduct(row)
+  )
 }
 
 export async function getAdminProductById(
@@ -334,11 +386,12 @@ export async function getAdminProductById(
   const supabase =
     getRequiredServiceClient()
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_SELECT)
-    .eq("id", id)
-    .maybeSingle()
+  const { data, error } =
+    await supabase
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .eq("id", id)
+      .maybeSingle()
 
   if (error) {
     console.error(
@@ -388,7 +441,9 @@ export async function productSlugExists(
     )
   }
 
-  return Boolean(data?.length)
+  return Boolean(
+    data?.length
+  )
 }
 
 export async function productReferenceExists(
@@ -401,7 +456,10 @@ export async function productReferenceExists(
   let query = supabase
     .from("products")
     .select("id")
-    .ilike("reference", reference)
+    .eq(
+      "reference",
+      reference
+    )
 
   if (excludeProductId) {
     query = query.neq(
@@ -419,5 +477,7 @@ export async function productReferenceExists(
     )
   }
 
-  return Boolean(data?.length)
+  return Boolean(
+    data?.length
+  )
 }
