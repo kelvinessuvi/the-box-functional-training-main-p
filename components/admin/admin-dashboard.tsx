@@ -16,6 +16,7 @@ import { BranchModal } from "./branch-modal"
 import { PartnerModal } from "./partner-modal"
 import { FounderModal } from "./founder-modal"
 import SettingsTab from "./settings-tab"
+import ProductsTab from "./products-tab"
 import ExportButtons from "./export-buttons"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -973,6 +974,7 @@ export function AdminDashboard() {
                 {activeTab === "modalities" && "Modalidades"}
                 {activeTab === "instructors" && "Instrutores"}
                 {activeTab === "branches" && "Filiais"}
+                {activeTab === "products" && "Produtos"}
                 {activeTab === "partners" && "Parceiros"}
                 {activeTab === "messages" && "Mensagens"}
                 {activeTab === "users" && "Usuários"}
@@ -1643,6 +1645,11 @@ export function AdminDashboard() {
               )}
             </div>
             </div>
+          )}
+
+          {/* Products Content */}
+          {activeTab === "products" && (
+            <ProductsTab />
           )}
 
           {/* Partners Content */}
