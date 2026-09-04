@@ -1,5 +1,7 @@
 import "server-only"
 
+import { unstable_noStore as noStore } from "next/cache"
+
 import {
   getServiceClient,
   isSupabaseConfigured,
@@ -19,6 +21,7 @@ import type {
   ProductVariant,
   ProductVariantRow,
   ProductWithRelationsRow,
+  PublicStoreProduct,
   StoreProduct,
 } from "./types"
 
@@ -234,9 +237,55 @@ function mapProduct(
   }
 }
 
+function toPublicProduct(
+  product: StoreProduct
+): PublicStoreProduct {
+  const images = product.images.map(
+    (image) => ({
+      imageUrl: image.imageUrl,
+      altText: image.altText,
+    })
+  )
+
+  return {
+    name: product.name,
+    slug: product.slug,
+    reference: product.reference,
+    description: product.description,
+    category: product.category,
+    price: product.price,
+    currency: product.currency,
+    variantLabel:
+      product.variantLabel,
+    featured: product.featured,
+
+    variants:
+      product.variants.map(
+        (variant) => ({
+          name: variant.name,
+          stockQuantity:
+            variant.stockQuantity,
+          priceOverride:
+            variant.priceOverride,
+        })
+      ),
+
+    images,
+
+    totalStock:
+      product.totalStock,
+    availability:
+      product.availability,
+    primaryImage:
+      images[0] ?? null,
+  }
+}
+
 export async function getPublicProducts(
   options: ProductQueryOptions = {}
-): Promise<StoreProduct[]> {
+): Promise<PublicStoreProduct[]> {
+  noStore()
+
   const supabase =
     getRequiredServiceClient()
 
@@ -298,15 +347,19 @@ export async function getPublicProducts(
         | null
     ) ?? []
   ).map((row) =>
-    mapProduct(row, {
-      publicOnly: true,
-    })
+    toPublicProduct(
+      mapProduct(row, {
+        publicOnly: true,
+      })
+    )
   )
 }
 
 export async function getPublicProductBySlug(
   slug: string
-): Promise<StoreProduct | null> {
+): Promise<PublicStoreProduct | null> {
+  noStore()
+
   const supabase =
     getRequiredServiceClient()
 
@@ -333,11 +386,13 @@ export async function getPublicProductBySlug(
     return null
   }
 
-  return mapProduct(
-    data as ProductWithRelationsRow,
-    {
-      publicOnly: true,
-    }
+  return toPublicProduct(
+    mapProduct(
+      data as ProductWithRelationsRow,
+      {
+        publicOnly: true,
+      }
+    )
   )
 }
 

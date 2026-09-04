@@ -4,9 +4,11 @@ import { getPublicProducts } from "@/lib/products/queries"
 import { productCategorySchema } from "@/lib/products/validation"
 
 export const dynamic = "force-dynamic"
+export const revalidate = 0
+export const fetchCache = "force-no-store"
 
 const PUBLIC_HEADERS = {
-  "Cache-Control": "no-store, max-age=0",
+  "Cache-Control": "no-store, max-age=0, must-revalidate",
   Pragma: "no-cache",
   Expires: "0",
 }

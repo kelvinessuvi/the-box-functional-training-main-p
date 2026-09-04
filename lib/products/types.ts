@@ -93,6 +93,36 @@ export interface StoreProduct {
   primaryImage: ProductImage | null
 }
 
+export interface PublicProductVariant {
+  name: string
+  stockQuantity: number
+  priceOverride: number | null
+}
+
+export interface PublicProductImage {
+  imageUrl: string
+  altText: string | null
+}
+
+export interface PublicStoreProduct {
+  name: string
+  slug: string
+  reference: string
+  description: string
+  category: ProductCategory
+  price: number
+  currency: string
+  variantLabel: string | null
+  featured: boolean
+
+  variants: PublicProductVariant[]
+  images: PublicProductImage[]
+
+  totalStock: number
+  availability: ProductAvailability
+  primaryImage: PublicProductImage | null
+}
+
 export interface ProductVariantInput {
   name: string
   stockQuantity: number
