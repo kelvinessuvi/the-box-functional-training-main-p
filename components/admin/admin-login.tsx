@@ -117,7 +117,7 @@ export function AdminLogin() {
                 type="email"
                 value={credentials.email}
                 onChange={(e) => setCredentials((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder="geral@theboxft.com"
+                placeholder="Digite o email de acesso"
                 required
                 className="bg-[#1A1A1A] border-[#1A1A1A] text-white placeholder:text-[#B3B3B3] focus:border-[#D4AF37]"
               />
