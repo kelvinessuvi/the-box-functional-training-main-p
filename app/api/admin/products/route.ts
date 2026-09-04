@@ -2,45 +2,45 @@ import {
     type NextRequest,
     NextResponse,
   } from "next/server"
-  
+
   import {
     getAuthenticatedAdmin,
   } from "@/lib/auth/auth-utils"
-  
+
   import {
     addProductImages,
     createProduct,
     deleteProductById,
   } from "@/lib/products/mutations"
-  
+
   import {
     getAdminProductById,
     getAdminProducts,
     productReferenceExists,
     productSlugExists,
   } from "@/lib/products/queries"
-  
+
   import {
     removeProductStorageFiles,
     uploadProductImages,
   } from "@/lib/products/storage"
-  
+
   import {
     normalizeProductReference,
     normalizeProductSlug,
     parseProductCreateInput,
   } from "@/lib/products/validation"
-  
+
   export const dynamic = "force-dynamic"
   export const runtime = "nodejs"
-  
+
   const PRIVATE_HEADERS = {
     "Cache-Control":
       "no-cache, no-store, must-revalidate, private",
     Pragma: "no-cache",
     Expires: "0",
   }
-  
+
   function getErrorMessage(
     error: unknown
   ) {
@@ -48,13 +48,13 @@ import {
       ? error.message
       : "Erro desconhecido"
   }
-  
+
   function isUniqueViolation(
     message: string
   ) {
     const normalized =
       message.toLowerCase()
-  
+
     return (
       message.includes("23505") ||
       normalized.includes(
@@ -65,7 +65,7 @@ import {
       )
     )
   }
-  
+
   function getImageFiles(
     formData: FormData
   ) {
@@ -77,13 +77,13 @@ import {
           value.size > 0
       )
   }
-  
+
   function parsePayload(
     formData: FormData
   ): Record<string, unknown> {
     const rawPayload =
       formData.get("payload")
-  
+
     if (
       typeof rawPayload !== "string"
     ) {
@@ -91,9 +91,9 @@ import {
         "Payload do produto em falta"
       )
     }
-  
+
     let parsed: unknown
-  
+
     try {
       parsed = JSON.parse(rawPayload)
     } catch {
@@ -101,7 +101,7 @@ import {
         "Payload JSON inválido"
       )
     }
-  
+
     if (
       !parsed ||
       typeof parsed !== "object" ||
@@ -111,18 +111,18 @@ import {
         "Payload do produto inválido"
       )
     }
-  
+
     return parsed as Record<
       string,
       unknown
     >
   }
-  
+
   export async function GET() {
     try {
       const admin =
         await getAuthenticatedAdmin()
-  
+
       if (!admin) {
         return NextResponse.json(
           {
@@ -134,10 +134,10 @@ import {
           }
         )
       }
-  
+
       const products =
         await getAdminProducts()
-  
+
       return NextResponse.json(
         {
           products,
@@ -152,7 +152,7 @@ import {
         "[PRODUCTS-ADMIN-GET] Erro:",
         error
       )
-  
+
       return NextResponse.json(
         {
           error:
@@ -165,21 +165,21 @@ import {
       )
     }
   }
-  
+
   export async function POST(
     request: NextRequest
   ) {
     let createdProductId:
       | string
       | null = null
-  
+
     let uploadedPaths:
       string[] = []
-  
+
     try {
       const admin =
         await getAuthenticatedAdmin()
-  
+
       if (!admin) {
         return NextResponse.json(
           {
@@ -191,48 +191,48 @@ import {
           }
         )
       }
-  
+
       const formData =
         await request.formData()
-  
+
       const payload =
         parsePayload(formData)
-  
+
       const nameValue =
         typeof payload.name === "string"
           ? payload.name
           : ""
-  
+
       const slugValue =
         typeof payload.slug === "string" &&
         payload.slug.trim()
           ? payload.slug
           : nameValue
-  
+
       const referenceValue =
         typeof payload.reference === "string"
           ? payload.reference
           : ""
-  
+
       const normalizedPayload = {
         ...payload,
-  
+
         slug:
           normalizeProductSlug(
             slugValue
           ),
-  
+
         reference:
           normalizeProductReference(
             referenceValue
           ),
       }
-  
+
       const parsed =
         parseProductCreateInput(
           normalizedPayload
         )
-  
+
       if (!parsed.success) {
         return NextResponse.json(
           {
@@ -240,7 +240,7 @@ import {
               parsed.error.issues[0]
                 ?.message ||
               "Dados do produto inválidos",
-  
+
             issues:
               parsed.error.issues,
           },
@@ -250,12 +250,12 @@ import {
           }
         )
       }
-  
+
       const slugExists =
         await productSlugExists(
           parsed.data.slug
         )
-  
+
       if (slugExists) {
         return NextResponse.json(
           {
@@ -268,12 +268,12 @@ import {
           }
         )
       }
-  
+
       const referenceExists =
         await productReferenceExists(
           parsed.data.reference
         )
-  
+
       if (referenceExists) {
         return NextResponse.json(
           {
@@ -286,31 +286,31 @@ import {
           }
         )
       }
-  
+
       const imageFiles =
         getImageFiles(formData)
-  
+
       const created =
         await createProduct(
           parsed.data
         )
-  
+
       createdProductId =
         created.id
-  
+
       if (imageFiles.length) {
         const uploaded =
           await uploadProductImages(
             created.id,
             imageFiles
           )
-  
+
         uploadedPaths =
           uploaded.map(
             (image) =>
               image.storagePath
           )
-  
+
         await addProductImages(
           created.id,
           uploaded,
@@ -320,18 +320,18 @@ import {
           }
         )
       }
-  
+
       const completeProduct =
         await getAdminProductById(
           created.id
         )
-  
+
       if (!completeProduct) {
         throw new Error(
           "Produto criado, mas não foi possível recuperá-lo"
         )
       }
-  
+
       return NextResponse.json(
         {
           product:
@@ -347,19 +347,19 @@ import {
         "[PRODUCTS-ADMIN-POST] Erro:",
         error
       )
-  
+
       if (createdProductId) {
         try {
           const deletion =
             await deleteProductById(
               createdProductId
             )
-  
+
           const storagePaths = [
             ...uploadedPaths,
             ...deletion.storagePaths,
           ]
-  
+
           if (storagePaths.length) {
             await removeProductStorageFiles(
               storagePaths
@@ -370,7 +370,7 @@ import {
             "[PRODUCTS-ADMIN-POST] Falha no rollback:",
             cleanupError
           )
-  
+
           if (
             uploadedPaths.length
           ) {
@@ -380,10 +380,10 @@ import {
           }
         }
       }
-  
+
       const message =
         getErrorMessage(error)
-  
+
       return NextResponse.json(
         {
           error:
