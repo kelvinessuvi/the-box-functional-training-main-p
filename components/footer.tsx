@@ -230,8 +230,8 @@ export function Footer() {
               <li>
                 <span className="text-[#B3B3B3]">
                   {language === "pt"
-                    ? "4 Filiais em Angola e Portugal"
-                    : "4 Locations in Angola and Portugal"}
+                    ? "5 Filiais em Angola e Portugal"
+                    : "5 Locations in Angola and Portugal"}
                 </span>
               </li>
 
