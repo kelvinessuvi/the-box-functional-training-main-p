@@ -73,7 +73,9 @@ export function useDirectDatabase() {
 
   // Configurar assinaturas em tempo real
   useEffect(() => {
-    if (!supabase) {
+    const client = supabase
+
+    if (!client) {
       console.warn('[DIRECT-DB] Supabase client não configurado')
       return
     }
@@ -81,7 +83,7 @@ export function useDirectDatabase() {
     console.log('[DIRECT-DB] Configurando assinaturas em tempo real...')
 
     // Assinatura para mensagens
-    const messagesSubscription = supabase
+    const messagesSubscription = client
       .channel('direct-messages')
       .on('postgres_changes', {
         event: '*',
@@ -94,7 +96,7 @@ export function useDirectDatabase() {
       .subscribe()
 
     // Assinatura para modalidades
-    const modalitiesSubscription = supabase
+    const modalitiesSubscription = client
       .channel('direct-modalities')
       .on('postgres_changes', {
         event: '*',
@@ -107,7 +109,7 @@ export function useDirectDatabase() {
       .subscribe()
 
     // Assinatura para galeria
-    const gallerySubscription = supabase
+    const gallerySubscription = client
       .channel('direct-gallery')
       .on('postgres_changes', {
         event: '*',
@@ -136,7 +138,7 @@ export function useDirectDatabase() {
       console.log('[DIRECT-DB] Limpando assinaturas...')
       subscriptions.current.forEach(subscription => {
         if (subscription) {
-          supabase.removeChannel(subscription)
+          client.removeChannel(subscription)
         }
       })
       subscriptions.current = []

@@ -226,19 +226,37 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
           deleteError.code === '42501') {
         console.log('[GALLERY] Tentando deletar usando método alternativo...')
         
-        // Tentar usar rpc ou sql direto
-        const { error: rpcError } = await supabase.rpc('delete_gallery_image', { image_id: params.id })
-          .catch(async () => {
-            // Se RPC não existir, tentar deletar diretamente via SQL usando service role
+        // Tentar usar RPC e, se não estiver disponível ou falhar,
+        // repetir a exclusão directamente com o service role.
+        let alternativeDeleteError: unknown = null
+
+        try {
+          const { error: rpcError } = await supabase.rpc('delete_gallery_image', {
+            image_id: params.id,
+          })
+
+          if (rpcError) {
+            console.warn('[GALLERY] RPC delete_gallery_image falhou. Tentando exclusão directa:', rpcError)
+
             const { error: sqlError } = await supabase
               .from('gallery_images')
               .delete()
               .eq('id', params.id)
-            
-            return { error: sqlError }
-          })
+
+            alternativeDeleteError = sqlError
+          }
+        } catch (rpcException) {
+          console.warn('[GALLERY] Excepção ao chamar RPC. Tentando exclusão directa:', rpcException)
+
+          const { error: sqlError } = await supabase
+            .from('gallery_images')
+            .delete()
+            .eq('id', params.id)
+
+          alternativeDeleteError = sqlError
+        }
         
-        if (rpcError) {
+        if (alternativeDeleteError) {
           return NextResponse.json({ 
             error: `Erro ao excluir imagem. Possível problema com trigger ou políticas RLS. Execute o script fix-gallery-delete-policy.sql no Supabase. Erro: ${deleteError.message}` 
           }, { status: 500 })
