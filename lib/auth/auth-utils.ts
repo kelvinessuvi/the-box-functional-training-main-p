@@ -59,7 +59,7 @@ export async function getAuthenticatedAdmin(): Promise<AdminClaims | null> {
     return null
   }
   
-  const payload = await verifyJWT<AdminClaims & { role?: string }>(token)
+  const payload = await verifyJWT<{ sub?: string; email?: string; role?: string }>(token)
   
   if (!payload?.email) {
     console.log("[AUTH-UTILS] Token inválido ou sem email")
@@ -71,7 +71,7 @@ export async function getAuthenticatedAdmin(): Promise<AdminClaims | null> {
   return {
     sub: payload.sub || payload.email,
     email: payload.email,
-    role: (payload.role === "super_admin" ? "admin" : "admin") as "admin",
+    role: "admin",
   }
 }
 
