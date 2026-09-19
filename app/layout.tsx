@@ -11,7 +11,7 @@ import { LanguageProvider } from "@/contexts/language-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "THE BOX Functional Training - Aqui o Sistema é Bruto",
+  title: "THE BOX Functional Training: Aqui o Sistema é Bruto",
   description:
     "Academia de Artes Marciais com foco em Jiu-Jitsu. Transformamos vidas através do treino, disciplina e desenvolvimento pessoal em Angola e Portugal.",
   keywords: "jiu-jitsu, artes marciais, the box, functional training, angola, portugal, gf team, treino, disciplina",
